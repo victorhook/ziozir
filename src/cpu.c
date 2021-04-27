@@ -15,6 +15,10 @@ static StatusReg sReg;
 
 
 /* --- Primary memory --- */
+#define WRITE_RAM(value, addr) {ram[addr] = value;}
+#define READ_RAM(addr) {ram[addr]}
+
+
 void writeRam(address addr, word value)
 {
     ram[addr] = value;
@@ -89,7 +93,18 @@ void updateZFlag(word result)
 
 void init_cpu()
 {
-    ram[SP] = 0;
+    ram[SP] = DEFAULT_SP_INDEX;
+    ram[PC] = DEFAULT_PC_INDEX;
+}
+
+static inline void incPc()
+{
+    ram[PC]++;
+}
+
+static inline void setPc(address value)
+{
+    ram[PC] = value;
 }
 
 /* --- IO --- */
@@ -98,6 +113,62 @@ void cpuPutc(char c)
     putchar(c);
 }
 
+char cpuGetc()
+{
+    return getchar();
+}
+
 /* --- Instructions --- */
+static inline void arithmetic(word result, address to)
+{
+    WRITE_RAM(to, result);
+    updateZFlag(result);
+}
+void opAdd(word op1, word op2, address to)
+{
+    arithmetic(op1 + op2, to);
+}
+void opSub(word op1, word op2, address to)
+{
+    arithmetic(op1 - op2, to);
+}
+void opMul(word op1, word op2, address to)
+{
+    arithmetic(op1 * op2, to);
+}
+void opJump(address addr)
+{
+    setPc(addr);
+}
+void opJumpZ(address addr)
+{
+    if (sReg.zFlag == 0)
+        setPc(addr);
+    else
+        incPc();
+}
 
+void opJumpEq(address addr)
+{
 
+}
+void opJumpNeq(address addr)
+{
+
+}
+void opJumpGT(address addr)
+{
+
+}
+void opJumpGTE(address addr)
+{
+
+}
+void opJumpLT(address addr)
+{
+
+}
+void opJumpLTE(address addr)
+{
+
+}
