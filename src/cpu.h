@@ -101,6 +101,7 @@ typedef char token;
 
 
 void init_cpu();
+int run();
 
 
 

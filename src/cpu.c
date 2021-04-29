@@ -91,11 +91,7 @@ void updateZFlag(word result)
     WRITE_SREG_BIT(result == 0 ? 1 : 0);
 }
 
-void init_cpu()
-{
-    ram[SP] = DEFAULT_SP_INDEX;
-    ram[PC] = DEFAULT_PC_INDEX;
-}
+
 
 static inline void incPc()
 {
@@ -123,6 +119,11 @@ static inline void arithmetic(word result, address to)
 {
     WRITE_RAM(to, result);
     updateZFlag(result);
+    incPc();
+}
+void nop()
+{
+    incPc();
 }
 void opAdd(word op1, word op2, address to)
 {
@@ -147,28 +148,114 @@ void opJumpZ(address addr)
     else
         incPc();
 }
-
-void opJumpEq(address addr)
+void opJumpEq(word op1, word op2, address addr)
 {
-
+    if (op1 == op2)
+        setPc(addr);
+    else
+        incPc();
 }
-void opJumpNeq(address addr)
+void opJumpNeq(word op1, word op2, address addr)
 {
-
+    if (op1 != op2)
+        setPc(addr);
+    else
+        incPc();
 }
-void opJumpGT(address addr)
+void opJumpGT(word op1, word op2, address addr)
 {
-
+    if (op1 > op2)
+        setPc(addr);
+    else
+        incPc();
 }
-void opJumpGTE(address addr)
+void opJumpGTE(word op1, word op2, address addr)
 {
-
+    if (op1 >= op2)
+        setPc(addr);
+    else
+        incPc();
 }
-void opJumpLT(address addr)
+void opJumpLT(word op1, word op2, address addr)
 {
-
+    if (op1 < op2)
+        setPc(addr);
+    else
+        incPc();
 }
-void opJumpLTE(address addr)
+void opJumpLTE(word op1, word op2, address addr)
 {
+    if (op1 <= op2)
+        setPc(addr);
+    else
+        incPc();
+}
+
+
+/* -- Actions -- */
+
+void init_cpu()
+{
+    ram[SP] = DEFAULT_SP_INDEX;
+    ram[PC] = DEFAULT_PC_INDEX;
+}
+
+int run()
+{
+    char msg[200];
+    int running = 1;
+    int instrNbr = 0;
+    Instruction* instructions;
+    Instruction instr = instructions[0];
+
+    switch (instr.op) {
+        case OP_ADD:
+            opAdd(instr.args[0], instr.args[1], instr.args[2]);
+            break;
+        case OP_SUB:
+            opSub(instr.args[0], instr.args[1], instr.args[2]);
+            break;
+        case OP_MUL:
+            opMul(instr.args[0], instr.args[1], instr.args[2]);
+            break;
+        case OP_JUMP:
+            opJump(instr.args[0]);
+            break;
+        case OP_JUMPZ:
+            opJumpz(instr.args[0]);
+            break;
+        case OP_JUMPEQ:
+            opJumpEq(instr.args[0], instr.args[1], instr.args[2]);
+            break;
+        case OP_JUMPNEQ:
+            opJumpNeq(instr.args[0], instr.args[1], instr.args[2]);
+            break;
+        case OP_JUMPGT:
+            opJumpGT(instr.args[0], instr.args[1], instr.args[2]);
+            break;
+        case OP_JUMPGTE:
+            opJumpGTE(instr.args[0], instr.args[1], instr.args[2]);
+            break;
+        case OP_JUMPLT:
+            opJumpLT(instr.args[0], instr.args[1], instr.args[2]);
+            break;
+        case OP_JUMPLTE:
+            opJumpLTE(instr.args[0], instr.args[1], instr.args[2]);
+            break;
+        case OP_NOP:
+            opNop();
+            break;
+        case OP_HALT:
+            sprintf(msg, "[%d] Halt reached!\n", instrNbr);
+            LOG_INFO(msg);
+            running = 0;
+            break;
+        case OP_UNKNOWN:
+        default:
+            sprintf(msg, "[%d] Unknown operation %d. Exiting!\n", instrNbr, instr.op);
+            LOG_INFO(msg);
+            running = 0;
+            break;
+        }
 
 }
