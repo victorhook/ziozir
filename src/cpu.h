@@ -39,7 +39,6 @@ word readReg(reg reg);
 void writeReg(reg reg, word value);
 
 
-
 /* --- Secondary memory --- */
 #define MEMORY_SIZE 1024
 #define MEMORY_FILE_PATH "//home/victor/coding/projects/cpu/src/memory"
@@ -55,12 +54,16 @@ typedef enum {
     OP_SUB,
     OP_MUL,
     OP_JUMP,
+    OP_JUMPZ,
     OP_JUMPEQ,
     OP_JUMPNEQ,
     OP_JUMPGT,
     OP_JUMPGTE,
     OP_JUMPLT,
-    OP_JUMPLTE
+    OP_JUMPLTE,
+    OP_NOP,
+    OP_HALT,
+    OP_UNKNOWN
 } Operation;
 
 typedef reg Arg;
@@ -70,17 +73,18 @@ typedef struct {
     Arg args[4];
 } Instruction;
 
+void opNop();
 void opAdd(word op1, word op2, address to);
 void opSub(word op1, word op2, address to);
 void opMul(word op1, word op2, address to);
 void opJump(address addr);
 void opJumpZ(address addr);
-void opJumpEq(address addr);
-void opJumpNeq(address addr);
-void opJumpGT(address addr);
-void opJumpGTE(address addr);
-void opJumpLT(address addr);
-void opJumpLTE(address addr);
+void opJumpEq(word op1, word op2, address addr);
+void opJumpNeq(word op1, word op2, address addr);
+void opJumpGT(word op1, word op2, address addr);
+void opJumpGTE(word op1, word op2, address addr);
+void opJumpLT(word op1, word op2, address addr);
+void opJumpLTE(word op1, word op2, address addr);
 
 /* --- IO --- */
 void cpuPutc(char c);
