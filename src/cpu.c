@@ -121,7 +121,7 @@ static inline void arithmetic(word result, address to)
     updateZFlag(result);
     incPc();
 }
-void nop()
+void opNop()
 {
     incPc();
 }
@@ -222,7 +222,7 @@ int run()
             opJump(instr.args[0]);
             break;
         case OP_JUMPZ:
-            opJumpz(instr.args[0]);
+            opJumpZ(instr.args[0]);
             break;
         case OP_JUMPEQ:
             opJumpEq(instr.args[0], instr.args[1], instr.args[2]);

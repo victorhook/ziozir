@@ -1,14 +1,13 @@
 CC=gcc
 CFLAGS=-I src -g
 DEPS = src/cpu.h
-#OBJ = src/main.o src/cpu.o
 TARGET = cpu
 
 SOURCE_DIR = src
 BUILD_DIR = build
 
 SRC = $(wildcard $(SOURCE_DIR)/*.c)
-OBJ = $(patsubst $(SOURCE_DIR)/*.c, $(BUILD_DIR)/*.o, $(SRC))
+OBJ = $(patsubst $(SOURCE_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRC))
 
 
 $(TARGET): $(OBJ)
