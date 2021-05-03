@@ -10,4 +10,4 @@
 
 
 ## Communication
-![flowgraph](flowgraph.svg)
+![flowgraph](images/flowgraph.svg)
