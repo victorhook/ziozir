@@ -9,8 +9,12 @@
 #define READ_SREG_BIT(bit) (ram[STATUS_REG] & (1 << bit))
 #define WRITE_SREG_BIT(bit) (ram[STATUS_REG] &= ~(1 << bit))
 
-static word ram[RAM_SIZE];
-static StatusReg sReg;
+
+reg registers[TOTAL_REGISTERS];     // Register file
+address pc;                         // Program counter
+StatusReg sReg;                     // Status register
+
+word ram[RAM_SIZE];
 
 
 
@@ -18,21 +22,21 @@ static StatusReg sReg;
 #define WRITE_RAM(value, addr) {ram[addr] = value;}
 #define READ_RAM(addr) {ram[addr]}
 
-void writeRam(address addr, word value)
+static inline void writeRam(address addr, word value)
 {
     ram[addr] = value;
 }
-word readRam(address addr)
+static inline word readRam(address addr)
 {
     return ram[addr];
 }
-word readReg(reg reg)
+static inline word readReg(reg reg)
 {
-    return ram[REG_OFFSET + reg];
+    return registers[reg];
 }
-void writeReg(reg reg, word value)
+static inline void writeReg(reg reg, word value)
 {
-    ram[REG_OFFSET + reg] = value;
+    registers[reg] = value;
 }
 
 
@@ -72,21 +76,21 @@ StatusReg getStatusReg()
 {
     return sReg;
 }
-void updateStatusReg()
+static inline void updateStatusReg()
 {
     sReg.zFlag = READ_SREG_BIT(STATUS_REG_Z_FLAG);
 }
-void updateZFlag(word result)
+static inline void updateZFlag(word result)
 {
     WRITE_SREG_BIT(result == 0 ? 1 : 0);
 }
 static inline void incPc()
 {
-    ram[PC]++;
+    pc++;
 }
 static inline void setPc(address value)
 {
-    ram[PC] = value;
+    pc = value;
 }
 
 
@@ -102,37 +106,68 @@ char cpuGetc()
 
 
 /* --- Instructions --- */
-static inline void arithmetic(word result, address to)
+static inline void arithmetic(address to, word result)
 {
     WRITE_RAM(to, result);
     updateZFlag(result);
     incPc();
 }
 /* Arithmetic */
-void opADD(word op1, word op2, address to)
+void opADD(address to, reg r1, reg r2)
 {
-    arithmetic(op1 + op2, to);
+    arithmetic(to, registers[r1] + registers[r2]);
 }
-void opADDI(reg r, word op, address to)
+void opADDI(address to, reg r, word op)
 {
-    REGI
-    arithmetic(op1 + op2, to);
+    arithmetic(to, registers[r] + op);
 }
-void opSUB(word op1, word op2, address to)
+void opSUB(address to, reg r1, reg r2)
 {
-    arithmetic(op1 - op2, to);
+    arithmetic(to, registers[r1] - registers[r2]);
 }
-void opSUBI(reg r, word op, address to)
+void opSUBI(address to, reg r, word op)
 {
-    arithmetic(op1 - op2, to);
+    arithmetic(to, registers[r] - op);
 }
-void opMUL(word op1, word op2, address to)
+void opMUL(address to, reg r1, reg r2)
 {
-    arithmetic(op1 * op2, to);
+    arithmetic(to, registers[r1] * registers[r2]);
 }
-void opMULI(reg r, word op, address to)
+void opMULI(address to, reg r, word op)
 {
-    arithmetic(op1 * op2, to);
+    arithmetic(to, registers[r] * op);
+}
+void opAND(address to, reg r1, reg r2)
+{
+    arithmetic(to, registers[r1] & registers[r2]);
+}
+void opANDI(address to, reg r, word op)
+{
+    arithmetic(to, registers[r] & op);
+}
+void opNOT(address to, reg r)
+{
+    arithmetic(to, ~registers[r]);
+}
+void opNOTI(address to, word op)
+{
+    arithmetic(to, ~op);
+}
+void opOR(address to, reg r1, reg r2)
+{
+    arithmetic(to, registers[r1] || registers[r2]);
+}
+void opORI(address to, reg r, word op)
+{
+    arithmetic(to, registers[r] || op);
+}
+void opXOR(address to, reg r1, reg r2)
+{
+    arithmetic(to, registers[r1] ^ registers[r2]);
+}
+void opXORI(address to, reg r, word op)
+{
+    arithmetic(to, registers[r] ^ op);
 }
 
 
