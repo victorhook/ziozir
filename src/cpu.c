@@ -187,42 +187,42 @@ void opJUMPZ(address addr)
     else
         incPc();
 }
-void opJUMPEQ(word op1, word op2, address addr)
+void opJUMPEQ(address addr, word op1, word op2)
 {
     if (op1 == op2)
         setPc(addr);
     else
         incPc();
 }
-void opJUMPNEQ(word op1, word op2, address addr)
+void opJUMPNEQ(address addr, word op1, word op2)
 {
     if (op1 != op2)
         setPc(addr);
     else
         incPc();
 }
-void opJUMPGT(word op1, word op2, address addr)
+void opJUMPGT(address addr, word op1, word op2)
 {
     if (op1 > op2)
         setPc(addr);
     else
         incPc();
 }
-void opJUMPGTE(word op1, word op2, address addr)
+void opJUMPGTE(address addr, word op1, word op2)
 {
     if (op1 >= op2)
         setPc(addr);
     else
         incPc();
 }
-void opJUMPLT(word op1, word op2, address addr)
+void opJUMPLT(address addr, word op1, word op2)
 {
     if (op1 < op2)
         setPc(addr);
     else
         incPc();
 }
-void opJUMPLTE(word op1, word op2, address addr)
+void opJUMPLTE(address addr, word op1, word op2)
 {
     if (op1 <= op2)
         setPc(addr);

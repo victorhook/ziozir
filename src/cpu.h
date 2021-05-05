@@ -62,13 +62,18 @@ typedef enum {
     OP_ANDI,    // AND R1 R2 2   -> R1 = R2 & 2
     OP_OR,      // OR R1 R2 R3   -> R1 = R2 || R3
     OP_ORI,     // OR R1 R2 2    -> R1 = R2 || 2
-    OP_XOR,     // XOR R1 R2 R3   -> R1 = R2 ^ R3
-    OP_XORI,    // XOR R1 R2 2    -> R1 = R2 ^ 2
+    OP_XOR,     // XOR R1 R2 R3  -> R1 = R2 ^ R3
+    OP_XORI,    // XOR R1 R2 2   -> R1 = R2 ^ 2
     OP_NOT,     // NOT R1 R2     -> R1 = ~R2
     OP_NOTI,    // NOT R1 2      -> R1 = ~2
 
-    OP_LD,      // LD R1 R2
-    OP_LDI,     // LD R1 2
+    // Memory -> Register
+    OP_LD,      // LD R1 Label   -> R1 = $[Label]
+    OP_LDI,     // LDI R1 2      -> R1 = $[2]
+
+    // Register -> Memory
+    OP_ST,      // ST R1 Label   -> $[Label] = R1
+    OP_STI,     // ST R1 2       -> $[2] = R1
 
     OP_PUSH,    // PUSH
     OP_POP,     // POP
@@ -144,12 +149,12 @@ void opRETI();
 /* Branching */
 void opJUMP(address addr);
 void opJUMPZ(address addr);
-void opJUMPEQ(word op1, word op2, address addr);
-void opJUMPNEQ(word op1, word op2, address addr);
-void opJUMPGT(word op1, word op2, address addr);
-void opJUMPGTE(word op1, word op2, address addr);
-void opJUMPLT(word op1, word op2, address addr);
-void opJUMPLTE(word op1, word op2, address addr);
+void opJUMPEQ(address addr, word op1, word op2);
+void opJUMPNEQ(address addr, word op1, word op2);
+void opJUMPGT(address addr, word op1, word op2);
+void opJUMPGTE(address addr, word op1, word op2);
+void opJUMPLT(address addr, word op1, word op2);
+void opJUMPLTE(address addr, word op1, word op2);
 
 Instruction fetchInstruction();
 
