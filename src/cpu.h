@@ -28,10 +28,14 @@ typedef struct {
 #define RAM_SIZE 256
 #define DEFAULT_PC_INDEX 100
 #define DEFAULT_SP_INDEX 200
+#define TOTAL_REGISTERS 8
 
 typedef unsigned char word;
 typedef uint16_t address;
 typedef unsigned char reg;
+
+
+reg registers[TOTAL_REGISTERS];
 
 void writeRam(address addr, word value);
 word readRam(address addr);
@@ -64,8 +68,9 @@ typedef enum {
     OP_ORI,     // OR R1 1
     OP_XOR,     // XOR R1 R2
     OP_XORI,    // XOR R1 1
-    OP_OP_LD,   // LD R1 R2
-    OP_OP_LDI,  // LD R1 2
+    OP_LD,      // LD R1 R2
+    OP_LDI,     // LD R1 2
+
     OP_PUSH,    // PUSH
     OP_POP,     // POP
     OP_INC,     // INC R1
@@ -77,6 +82,7 @@ typedef enum {
     OP_CALL,
     OP_RET,
     OP_RETI,
+
     OP_JUMP,    // JMP
     OP_JUMPZ,   // JMPZ
     OP_JUMPEQ,  // JMPEQ
@@ -100,51 +106,51 @@ typedef struct {
 void opNop();
 
 /* Arithmetic */
-void opAdd(reg r1, reg r2, address to);
-void opAddI(reg r, word op, address to);
-void opSub(reg r1, reg r2, address to);
-void opSubI(reg r, word op, address to);
-void opMul(reg r1, reg r2, address to);
-void opMulI(reg r, word op, address to);
-void opAnd(reg r1, reg r2, address to);
-void opAndI(reg r, word op, address to);
-void opNot(reg r1, reg r2, address to);
-void opNotI(reg r, word op, address to);
-void opOr(reg r1, reg r2, address to);
-void opOrI(reg r, word op, address to);
-void opXor(reg r1, reg r2, address to);
-void opXorI(reg r, word op, address to);
+void opADD(reg r1, reg r2, address to);
+void opADDI(reg r, word op, address to);
+void opSUB(reg r1, reg r2, address to);
+void opSUBI(reg r, word op, address to);
+void opMUL(reg r1, reg r2, address to);
+void opMULI(reg r, word op, address to);
+void opAND(reg r1, reg r2, address to);
+void opANDI(reg r, word op, address to);
+void opNOT(reg r1, reg r2, address to);
+void opNOTI(reg r, word op, address to);
+void opOR(reg r1, reg r2, address to);
+void opORI(reg r, word op, address to);
+void opXOR(reg r1, reg r2, address to);
+void opXORI(reg r, word op, address to);
 
-void opLd(reg r1, reg r2, address to);
-void opLdI(reg r, word op, address to);
+void opLD(reg r1, reg r2, address to);
+void opLDI(reg r, word op, address to);
 
-void opPush(reg r);
-void opPop(reg r);
-void opInc(reg r);
-void opDec(reg r);
+void opPUSH(reg r);
+void opPOP(reg r);
+void opINC(reg r);
+void opDEC(reg r);
 
 /* Enable interrupts. */
 void opEI();
 /* Disable Interrupts. */
 void opDI();
 /* Set bit b, in reg r to 1 */
-void opSet(uint8_t bit, reg r);
+void opSET(uint8_t bit, reg r);
 /* Set bit b, in reg r to 0 */
-void opRes(uint8_t bit, reg r);
+void opRES(uint8_t bit, reg r);
 
-void opCall(reg r1, reg r2, address to);
-void opRet(reg r, word op, address to);
-void opReti(reg r, word op, address to);
+void opCALL();
+void opRET();
+void opRETI();
 
-
-void opJump(address addr);
-void opJumpZ(address addr);
-void opJumpEq(word op1, word op2, address addr);
-void opJumpNeq(word op1, word op2, address addr);
-void opJumpGT(word op1, word op2, address addr);
-void opJumpGTE(word op1, word op2, address addr);
-void opJumpLT(word op1, word op2, address addr);
-void opJumpLTE(word op1, word op2, address addr);
+/* Branching */
+void opJUMP(address addr);
+void opJUMPZ(address addr);
+void opJUMPEQ(word op1, word op2, address addr);
+void opJUMPNEQ(word op1, word op2, address addr);
+void opJUMPGT(word op1, word op2, address addr);
+void opJUMPGTE(word op1, word op2, address addr);
+void opJUMPLT(word op1, word op2, address addr);
+void opJUMPLTE(word op1, word op2, address addr);
 
 Instruction fetchInstruction();
 

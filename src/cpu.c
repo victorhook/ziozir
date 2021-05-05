@@ -13,6 +13,7 @@ static word ram[RAM_SIZE];
 static StatusReg sReg;
 
 
+
 /* --- Primary memory --- */
 #define WRITE_RAM(value, addr) {ram[addr] = value;}
 #define READ_RAM(addr) {ram[addr]}
@@ -107,75 +108,94 @@ static inline void arithmetic(word result, address to)
     updateZFlag(result);
     incPc();
 }
-void opNop()
-{
-    incPc();
-}
-void opAdd(word op1, word op2, address to)
+/* Arithmetic */
+void opADD(word op1, word op2, address to)
 {
     arithmetic(op1 + op2, to);
 }
-void opSub(word op1, word op2, address to)
+void opADDI(reg r, word op, address to)
+{
+    REGI
+    arithmetic(op1 + op2, to);
+}
+void opSUB(word op1, word op2, address to)
 {
     arithmetic(op1 - op2, to);
 }
-void opMul(word op1, word op2, address to)
+void opSUBI(reg r, word op, address to)
+{
+    arithmetic(op1 - op2, to);
+}
+void opMUL(word op1, word op2, address to)
 {
     arithmetic(op1 * op2, to);
 }
-void opJump(address addr)
+void opMULI(reg r, word op, address to)
+{
+    arithmetic(op1 * op2, to);
+}
+
+
+/* Branching */
+void opNOP()
+{
+    incPc();
+}
+void opJUMP(address addr)
 {
     setPc(addr);
 }
-void opJumpZ(address addr)
+void opJUMPZ(address addr)
 {
     if (sReg.zFlag == 0)
         setPc(addr);
     else
         incPc();
 }
-void opJumpEq(word op1, word op2, address addr)
+void opJUMPEQ(word op1, word op2, address addr)
 {
     if (op1 == op2)
         setPc(addr);
     else
         incPc();
 }
-void opJumpNeq(word op1, word op2, address addr)
+void opJUMPNEQ(word op1, word op2, address addr)
 {
     if (op1 != op2)
         setPc(addr);
     else
         incPc();
 }
-void opJumpGT(word op1, word op2, address addr)
+void opJUMPGT(word op1, word op2, address addr)
 {
     if (op1 > op2)
         setPc(addr);
     else
         incPc();
 }
-void opJumpGTE(word op1, word op2, address addr)
+void opJUMPGTE(word op1, word op2, address addr)
 {
     if (op1 >= op2)
         setPc(addr);
     else
         incPc();
 }
-void opJumpLT(word op1, word op2, address addr)
+void opJUMPLT(word op1, word op2, address addr)
 {
     if (op1 < op2)
         setPc(addr);
     else
         incPc();
 }
-void opJumpLTE(word op1, word op2, address addr)
+void opJUMPLTE(word op1, word op2, address addr)
 {
     if (op1 <= op2)
         setPc(addr);
     else
         incPc();
 }
+
+/* Misc */
 
 
 /* -- Actions -- */
@@ -195,6 +215,7 @@ int run()
 
     while (running) {
         switch (instr.op) {
+            /* Arithmetic */
             case OP_ADD:
                 opAdd(instr.args[0], instr.args[1], instr.args[2]);
                 break;
@@ -225,8 +246,60 @@ int run()
             case OP_NOTI:
                 opNotI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
+            case OP_OR:
+                opOr(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_ORI:
+                opOrI(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_XOR:
+                opXor(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_XORI:
+                opXorI(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_LD:
+                opLD(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_LDI:
+                opLDI(instr.args[0], instr.args[1], instr.args[2]);
+                break;
 
+            case OP_PUSH:
+                opPUSH(instr.args[0]);
+                break;
+            case OP_POP:
+                opPOP(instr.args[0]);
+                break;
+            case OP_INC:
+                opINC(instr.args[0]);
+                break;
+            case OP_DEC:
+                opDEC(instr.args[0]);
+                break;
+            case OP_EI :
+                opEI();
+                break;
+            case OP_DI :
+                opDI();
+                break;
+            case OP_SET:
+                opSET(instr.args[0], instr.args[1]);
+                break;
+            case OP_RES:
+                opRES(instr.args[0], instr.args[1]);
+                break;
+            case OP_CALL:
+                opCALL();
+                break;
+            case OP_RET:
+                opRET();
+                break;
+            case OP_RETI:
+                opRETI();
+                break;
 
+            /* Branching */
             case OP_JUMP:
                 opJump(instr.args[0]);
                 break;
@@ -251,6 +324,8 @@ int run()
             case OP_JUMPLTE:
                 opJumpLTE(instr.args[0], instr.args[1], instr.args[2]);
                 break;
+
+            /* MISC */
             case OP_NOP:
                 opNop();
                 break;
