@@ -23,19 +23,19 @@ reg sp;
 #define WRITE_RAM(value, addr) {ram[addr] = value;}
 #define READ_RAM(addr) {ram[addr]}
 
-static inline void writeRam(address addr, word value)
+inline void writeRam(address addr, word value)
 {
     ram[addr] = value;
 }
-static inline word readRam(address addr)
+inline word readRam(address addr)
 {
     return ram[addr];
 }
-static inline word readReg(reg reg)
+inline word readReg(reg reg)
 {
     return registers[reg];
 }
-static inline void writeReg(reg reg, word value)
+inline void writeReg(reg reg, word value)
 {
     registers[reg] = value;
 }
@@ -77,33 +77,36 @@ StatusReg getStatusReg()
 {
     return sReg;
 }
-static inline void updateStatusReg()
+void updateStatusReg()
 {
     sReg.Z = READ_SREG_BIT(STATUS_REG_Z_FLAG);
 }
-static inline void updateZFlag(word result)
+void updateZFlag(word result)
 {
     WRITE_SREG_BIT(result == 0 ? 1 : 0);
 }
-static inline void incPc()
+void incPc()
 {
     pc++;
 }
-static inline void setPc(address value)
+void setPc(address value)
 {
     pc = value;
 }
-static inline void pushStack(word value)
+void pushStack(word value)
 {
     writeRam(sp, value);
     sp--;
 }
-static inline void popStack(reg r)
+void popStack(reg r)
 {
     registers[r] = readRam(sp);
     sp++;
 }
+Instruction fetchInstruction()
+{
 
+}
 
 /* --- IO --- */
 void cpuPutc(char c)
@@ -244,7 +247,10 @@ void opNOP()
 {
     incPc();
 }
-void opRETI();
+void opRETI()
+{
+
+}
 
 
 /* Branching */
@@ -325,46 +331,46 @@ int run()
         switch (instr.op) {
             /* Arithmetic */
             case OP_ADD:
-                opAdd(instr.args[0], instr.args[1], instr.args[2]);
+                opADD(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_ADDI:
-                opAddI(instr.args[0], instr.args[1], instr.args[2]);
+                opADDI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_SUB:
-                opSub(instr.args[0], instr.args[1], instr.args[2]);
+                opSUB(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_SUBI:
-                opSubI(instr.args[0], instr.args[1], instr.args[2]);
+                opSUBI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_MUL:
-                opMul(instr.args[0], instr.args[1], instr.args[2]);
+                opMUL(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_MULI:
-                opMulI(instr.args[0], instr.args[1], instr.args[2]);
+                opMULI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_AND:
-                opAnd(instr.args[0], instr.args[1], instr.args[2]);
+                opAND(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_ANDI:
-                opAndI(instr.args[0], instr.args[1], instr.args[2]);
+                opANDI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_NOT:
-                opNot(instr.args[0], instr.args[1], instr.args[2]);
+                opNOT(instr.args[0], instr.args[1]);
                 break;
             case OP_NOTI:
-                opNotI(instr.args[0], instr.args[1], instr.args[2]);
+                opNOTI(instr.args[0], instr.args[1]);
                 break;
             case OP_OR:
-                opOr(instr.args[0], instr.args[1], instr.args[2]);
+                opOR(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_ORI:
-                opOrI(instr.args[0], instr.args[1], instr.args[2]);
+                opORI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_XOR:
-                opXor(instr.args[0], instr.args[1], instr.args[2]);
+                opXOR(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_XORI:
-                opXorI(instr.args[0], instr.args[1], instr.args[2]);
+                opXORI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_LD:
                 opLD(instr.args[0], instr.args[1]);
@@ -384,10 +390,38 @@ int run()
             case OP_DEC:
                 opDEC(instr.args[0]);
                 break;
-            case OP_EI :
+
+            /* Branching */
+            case OP_JUMP:
+                opJUMP(instr.args[0]);
+                break;
+            case OP_JUMPZ:
+                opJUMPZ(instr.args[0]);
+                break;
+            case OP_JUMPEQ:
+                opJUMPEQ(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_JUMPNEQ:
+                opJUMPNEQ(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_JUMPGT:
+                opJUMPGT(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_JUMPGTE:
+                opJUMPGTE(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_JUMPLT:
+                opJUMPLT(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_JUMPLTE:
+                opJUMPLTE(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+
+            /* MISC */
+            case OP_EI:
                 opEI();
                 break;
-            case OP_DI :
+            case OP_DI:
                 opDI();
                 break;
             case OP_SET:
@@ -405,36 +439,8 @@ int run()
             case OP_RETI:
                 opRETI();
                 break;
-
-            /* Branching */
-            case OP_JUMP:
-                opJump(instr.args[0]);
-                break;
-            case OP_JUMPZ:
-                opJumpZ(instr.args[0]);
-                break;
-            case OP_JUMPEQ:
-                opJumpEq(instr.args[0], instr.args[1], instr.args[2]);
-                break;
-            case OP_JUMPNEQ:
-                opJumpNeq(instr.args[0], instr.args[1], instr.args[2]);
-                break;
-            case OP_JUMPGT:
-                opJumpGT(instr.args[0], instr.args[1], instr.args[2]);
-                break;
-            case OP_JUMPGTE:
-                opJumpGTE(instr.args[0], instr.args[1], instr.args[2]);
-                break;
-            case OP_JUMPLT:
-                opJumpLT(instr.args[0], instr.args[1], instr.args[2]);
-                break;
-            case OP_JUMPLTE:
-                opJumpLTE(instr.args[0], instr.args[1], instr.args[2]);
-                break;
-
-            /* MISC */
             case OP_NOP:
-                opNop();
+                opNOP();
                 break;
             case OP_HALT:
                 sprintf(msg, "[%d] Halt reached!\n", instrNbr);
