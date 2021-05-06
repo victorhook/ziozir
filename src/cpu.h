@@ -9,7 +9,9 @@
 
 
 typedef struct {
-    uint8_t zFlag;
+    uint8_t Z;      // Z flag
+    uint8_t OF;     // OverFlow flag
+    uint8_t IF;     // Interrupt flag
 } StatusReg;
 
 #define REG_OFFSET 0

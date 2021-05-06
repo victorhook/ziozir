@@ -6,6 +6,10 @@
 import logging
 
 
+from assembler.preprocessor import pre_process
+
+
+
 class Instruction:
     pass
 

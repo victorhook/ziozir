@@ -1,19 +1,21 @@
 #include <stdio.h>
 #include "cpu.h"
 
+#include "display_driver.h"
+
 
 int main() {
-    printf("Hello\n");
+    display_init();
 
-    for (int i = 0; i < 10; i++) {
-        int res = (int) writeMemory(i, i*i);
-        printf("%d, ", res);
+    struct colorStruct x = {1};
+
+    for (int i = 0; i < 400; i++) {
+        for (int j = 0; j < 400; j++) {
+            display_put(i, j, x);
+        }
     }
 
-    for (int i = 0; i < 10; i++) {
-        int res = (int) readMemory(i);
-        printf("%d, ", res);
-    }
+    display_swap_buffers();
 
-    return 0;
+    display_send_buffer();
 }
