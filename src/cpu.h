@@ -55,19 +55,19 @@ int writeMemory(memoryAddress addr, word value);
 /* --- Instructions --- */
 typedef enum {
     OP_ADD,     // ADD R1 R2 R3  -> R1 = R2 + R3
-    OP_ADDI,    // ADD R1 R2 2   -> R1 = R2 + 2
+    OP_ADDI,    // ADDI R1 R2 2  -> R1 = R2 + 2
     OP_SUB,     // SUB R1 R2 R3  -> R1 = R2 - R3
-    OP_SUBI,    // SUB R1 R2 2   -> R1 = R2 - 2
+    OP_SUBI,    // SUBI R1 R2 2  -> R1 = R2 - 2
     OP_MUL,     // MUL R1 R2 R3  -> R1 = R2 + R3
-    OP_MULI,    // MUL R1 R2 2   -> R1 = R2 * 2
+    OP_MULI,    // MULI R1 R2 2  -> R1 = R2 * 2
     OP_AND,     // AND R1 R2 R3  -> R1 = R2 & R3
-    OP_ANDI,    // AND R1 R2 2   -> R1 = R2 & 2
+    OP_ANDI,    // ANDI R1 R2 2  -> R1 = R2 & 2
     OP_OR,      // OR R1 R2 R3   -> R1 = R2 || R3
-    OP_ORI,     // OR R1 R2 2    -> R1 = R2 || 2
+    OP_ORI,     // ORI R1 R2 2   -> R1 = R2 || 2
     OP_XOR,     // XOR R1 R2 R3  -> R1 = R2 ^ R3
-    OP_XORI,    // XOR R1 R2 2   -> R1 = R2 ^ 2
+    OP_XORI,    // XORI R1 R2 2  -> R1 = R2 ^ 2
     OP_NOT,     // NOT R1 R2     -> R1 = ~R2
-    OP_NOTI,    // NOT R1 2      -> R1 = ~2
+    OP_NOTI,    // NOTI R1 2     -> R1 = ~2
 
     // Memory -> Register
     OP_LD,      // LD R1 Label   -> R1 = $[Label]
@@ -109,24 +109,45 @@ typedef struct {
     Arg args[4];
 } Instruction;
 
-void opNop();
+
+/* ------------- Instructions ------------------- */
 
 /* Arithmetic */
-void opADD(address to, reg r1, reg r2);
-void opADDI(address to, reg r, word op);
-void opSUB(address to, reg r1, reg r2);
-void opSUBI(address to, reg r, word op);
-void opMUL(address to, reg r1, reg r2);
-void opMULI(address to, reg r, word op);
-void opAND(address to, reg r1, reg r2);
-void opANDI(address to, reg r, word op);
-void opNOT(address to, reg r);
-void opNOTI(address to, word op);
-void opOR(address to, reg r1, reg r2);
-void opORI(address to, reg r, word op);
-void opXOR(address to, reg r1, reg r2);
-void opXORI(address to, reg r, word op);
 
+/* ADD R1 R2 R3  -> R1 = R2 + R3 */
+void opADD(address to, reg r1, reg r2);
+/* ADDI R1 R2 2  -> R1 = R2 + 2 */
+void opADDI(address to, reg r, word op);
+/* SUB R1 R2 R3  -> R1 = R2 - R3 */
+void opSUB(address to, reg r1, reg r2);
+/* SUBI R1 R2 2  -> R1 = R2 - 2 */
+void opSUBI(address to, reg r, word op);
+/* MUL R1 R2 R3  -> R1 = R2 + R3 */
+void opMUL(address to, reg r1, reg r2);
+/* MULI R1 R2 2  -> R1 = R2 * 2 */
+void opMULI(address to, reg r, word op);
+/* AND R1 R2 R3  -> R1 = R2 & R3 */
+void opAND(address to, reg r1, reg r2);
+/* ANDI R1 R2 2  -> R1 = R2 & 2 */
+void opANDI(address to, reg r, word op);
+/* OR R1 R2 R3   -> R1 = R2 || R3 */
+void opOR(address to, reg r1, reg r2);
+/* ORI R1 R2 2   -> R1 = R2 || 2 */
+void opORI(address to, reg r, word op);
+/* XOR R1 R2 R3  -> R1 = R2 ^ R3 */
+void opXOR(address to, reg r1, reg r2);
+/* XORI R1 R2 2  -> R1 = R2 ^ 2 */
+void opXORI(address to, reg r, word op);
+/* NOT R1 R2     -> R1 = ~R2 */
+void opNOT(address to, reg r);
+/* NOTI R1 2     -> R1 = ~2 */
+void opNOTI(address to, word op);
+/* Increments register r by 1. */
+void opINC(reg r);
+/* Decrements register r by 1. */
+void opDEC(reg r);
+
+/* -- Memory -- */
 /* Loads value at Ram[from] into register r. */
 void opLD(reg r, address from);
 /* Loads value into register r. */
@@ -139,10 +160,8 @@ void opSTI(word value, address to);
 void opPUSH(reg r);
 /* Pops the top of the stack into register r. Increments stackpointer by 1. */
 void opPOP(reg r);
-/* Increments register r by 1. */
-void opINC(reg r);
-/* Decrements register r by 1. */
-void opDEC(reg r);
+
+/* -- Misc -- */
 /* Enable interrupts. */
 void opEI();
 /* Disable Interrupts. */
@@ -157,18 +176,28 @@ void opCALL(address to);
    Note: This means that R0 is reserved for this. 
 */
 void opRET();
+/* CPU do nothing for 1 clock cycle. Increment pc by 1. */
+void opNop();
 
-
+// TODO: this
 void opRETI();
 
-/* Branching */
+/* -- Branching -- */
+/* Jumps to address addr. */
 void opJUMP(address addr);
+/* Jumps to address addr if z flag is set. */
 void opJUMPZ(address addr);
+/* Jumps to address addr if op1 == op2. */
 void opJUMPEQ(address addr, word op1, word op2);
+/* Jumps to address addr if op1 != op2. */
 void opJUMPNEQ(address addr, word op1, word op2);
+/* Jumps to address addr if op1 > op2. */
 void opJUMPGT(address addr, word op1, word op2);
+/* Jumps to address addr if op1 >= op2. */
 void opJUMPGTE(address addr, word op1, word op2);
+/* Jumps to address addr if op1 < op2. */
 void opJUMPLT(address addr, word op1, word op2);
+/* Jumps to address addr if op1 <= op2. */
 void opJUMPLTE(address addr, word op1, word op2);
 
 Instruction fetchInstruction();

@@ -240,17 +240,15 @@ void opRET()
     popStack(REG_0);
     setPc(registers[REG_0]);
 }
-
-
-void opRETI();
-
-
-
-/* Branching */
 void opNOP()
 {
     incPc();
 }
+void opRETI();
+
+
+/* Branching */
+
 void opJUMP(address addr)
 {
     setPc(addr);
@@ -369,12 +367,11 @@ int run()
                 opXorI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_LD:
-                opLD(instr.args[0], instr.args[1], instr.args[2]);
+                opLD(instr.args[0], instr.args[1]);
                 break;
             case OP_LDI:
-                opLDI(instr.args[0], instr.args[1], instr.args[2]);
+                opLDI(instr.args[0], instr.args[1]);
                 break;
-
             case OP_PUSH:
                 opPUSH(instr.args[0]);
                 break;
@@ -400,7 +397,7 @@ int run()
                 opRES(instr.args[0], instr.args[1]);
                 break;
             case OP_CALL:
-                opCALL();
+                opCALL(instr.args[0]);
                 break;
             case OP_RET:
                 opRET();
