@@ -127,14 +127,22 @@ void opORI(address to, reg r, word op);
 void opXOR(address to, reg r1, reg r2);
 void opXORI(address to, reg r, word op);
 
-void opLD(address to, reg r1, reg r2);
-void opLDI(address to, reg r, word op);
-
+/* Loads value at Ram[from] into register r. */
+void opLD(reg r, address from);
+/* Loads value into register r. */
+void opLDI(reg r, word value);
+/* Stores register r into Ram[to] */
+void opST(reg r, address to);
+/* Stores value into Ram[to] */
+void opSTI(word value, address to);
+/* Pushes register r onto the stack. Decrements stackpointer by 1. */
 void opPUSH(reg r);
+/* Pops the top of the stack into register r. Increments stackpointer by 1. */
 void opPOP(reg r);
+/* Increments register r by 1. */
 void opINC(reg r);
+/* Decrements register r by 1. */
 void opDEC(reg r);
-
 /* Enable interrupts. */
 void opEI();
 /* Disable Interrupts. */
@@ -143,9 +151,14 @@ void opDI();
 void opSET(uint8_t bit, reg r);
 /* Set bit b, in reg r to 0 */
 void opRES(uint8_t bit, reg r);
-
-void opCALL();
+/* Pushes the current value of Program Counter to the stack and sets it to address to. */
+void opCALL(address to);
+/* Pops the ToS into R0 and sets the Program Counter to that value. 
+   Note: This means that R0 is reserved for this. 
+*/
 void opRET();
+
+
 void opRETI();
 
 /* Branching */

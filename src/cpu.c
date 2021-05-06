@@ -9,13 +9,14 @@
 #define READ_SREG_BIT(bit) (ram[STATUS_REG] & (1 << bit))
 #define WRITE_SREG_BIT(bit) (ram[STATUS_REG] &= ~(1 << bit))
 
-
 reg registers[TOTAL_REGISTERS];     // Register file
 address pc;                         // Program counter
 StatusReg sReg;                     // Status register
 
 word ram[RAM_SIZE];
 
+
+reg sp;
 
 
 /* --- Primary memory --- */
@@ -78,7 +79,7 @@ StatusReg getStatusReg()
 }
 static inline void updateStatusReg()
 {
-    sReg.zFlag = READ_SREG_BIT(STATUS_REG_Z_FLAG);
+    sReg.Z = READ_SREG_BIT(STATUS_REG_Z_FLAG);
 }
 static inline void updateZFlag(word result)
 {
@@ -92,6 +93,16 @@ static inline void setPc(address value)
 {
     pc = value;
 }
+static inline void pushStack(word value)
+{
+    writeRam(sp, value);
+    sp--;
+}
+static inline void popStack(reg r)
+{
+    registers[r] = readRam(sp);
+    sp++;
+}
 
 
 /* --- IO --- */
@@ -103,7 +114,7 @@ char cpuGetc()
 {
     return getchar();
 }
-
+ 
 
 /* --- Instructions --- */
 static inline void arithmetic(address to, word result)
@@ -169,6 +180,70 @@ void opXORI(address to, reg r, word op)
 {
     arithmetic(to, registers[r] ^ op);
 }
+void opINC(reg r)
+{
+    registers[r]++;
+}
+void opDEC(reg r)
+{
+    registers[r]--;
+}
+void opSET(uint8_t bit, reg r)
+{
+    registers[r] |= 1 << bit;
+}
+void opRES(uint8_t bit, reg r)
+{
+    registers[r] &= ~(1 << bit);
+}
+void opLD(reg r, address from)
+{
+    registers[r] = readRam(from);
+}
+void opLDI(reg r, word value)
+{
+    registers[r] = value;
+}
+void opST(reg r, address to)
+{
+    writeRam(to, registers[r]);
+}
+
+void opSTI(word value, address to)
+{
+    writeRam(to, value);
+}
+void opPUSH(reg r)
+{
+    pushStack(registers[r]);
+}
+void opPOP(reg r)
+{
+    popStack(r);
+}
+void opEI()
+{
+    sReg.IF = 1;
+}
+void opDI()
+{
+    sReg.IF = 0;
+}
+
+void opCALL(address to)
+{
+    pushStack(pc);
+    setPc(to);
+}
+void opRET()
+{
+    popStack(REG_0);
+    setPc(registers[REG_0]);
+}
+
+
+void opRETI();
+
 
 
 /* Branching */
@@ -182,7 +257,7 @@ void opJUMP(address addr)
 }
 void opJUMPZ(address addr)
 {
-    if (sReg.zFlag == 0)
+    if (sReg.Z == 0)
         setPc(addr);
     else
         incPc();
