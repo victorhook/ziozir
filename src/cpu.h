@@ -170,8 +170,8 @@ char cpuGetc();
 StatusReg getStatusReg();
 void updateStatusReg();
 void updateZFlag(word result);
-void init_cpu();
-int run();
+void cpu_init();
+int cpu_run();
 
 
 #endif

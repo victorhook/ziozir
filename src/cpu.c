@@ -261,13 +261,13 @@ void opJUMPLTE(address addr, word op1, word op2)
 
 /* -- Actions -- */
 
-void init_cpu()
+void cpu_init()
 {
-    ram[SP] = DEFAULT_SP_INDEX;
-    ram[PC] = DEFAULT_PC_INDEX;
+    registers[SP] = DEFAULT_SP_INDEX;
+    registers[PC] = DEFAULT_PC_INDEX;
 }
 
-int run()
+int cpu_run()
 {
     char msg[200];
     int running = 1;

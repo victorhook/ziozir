@@ -43,6 +43,39 @@ static int _writeMemory(memoryAddress addr, word value, const char* filepath)
     return 1;
 }
 
+static int _readMemoryInto(void* buf, const size_t len, const char* filepath)
+{
+    word buf;
+    int fd = open(filepath, O_RDONLY);
+    if (fd < 0) {
+        LOG_ERROR("Failed to read from memory!");
+        return 0;
+    }
+
+    int bytesRead = read(fd, buf, len);
+    close(fd);
+    return bytesRead;
+}
+
+static int _readMemoryIntoUntilEof(void* buf, const size_t maxLen, const char* filepath)
+{
+    word buf;
+    int fd = open(filepath, O_RDONLY);
+    if (fd < 0) {
+        LOG_ERROR("Failed to read from memory!");
+        return 0;
+    }
+
+    int bytesRead = 0;
+    while (read(fd, buf, 1) != EOF && bytesRead < maxLen) {
+        bytesRead++;
+        buf++;
+    }
+
+    close(fd);
+    return bytesRead;
+}
+
 
 /* --- RAM --- */
 void writeRam(address addr, word value)
@@ -64,6 +97,10 @@ int writeFlash(memoryAddress addr, word value)
 {
     return _writeMemory(addr, value, flashMemoryPath);
 }
+int loadFlash(word* buf, size_t offset)
+{
+    return _readMemoryIntoUntilEof(buf + offset, flashMemoryPath);
+}
 
 /* --- Bios --- */
 word readBios(memoryAddress addr)
@@ -73,5 +110,9 @@ word readBios(memoryAddress addr)
 int writeBios(memoryAddress addr, word value)
 {
     return _writeMemory(addr, value, biosMemoryPath);
+}
+int loadBios(word* buf)
+{
+    return _readMemoryInto(buf, BIOS_SIZE * sizeof(word), biosMemoryPath);
 }
 

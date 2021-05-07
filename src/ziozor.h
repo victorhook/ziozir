@@ -19,7 +19,7 @@
                            |                                                                          
                       +----+----+                                                                     
                       |         |                                                                     
-                      | EEPROM  |                                                                     
+                      |  BIOS   |                                                                     
                       |         |                                                                     
                       +---------+                                                                     
 
@@ -40,6 +40,21 @@
 +------------------+ 
 
 Memory mapped I/O
+
+RAM:  8192
+BIOS: 512
+
+
+
+-- Memory mapped I/O --
+RAM addr  |   Periperal
+0 - Keyboard
+1 - mouseX
+2 - mouseY
+3 - mouseClick
+4 - 
+#define MONITOR_WIDTH 144
+#define MONITOR_HEIGHT 166
 
 */
 

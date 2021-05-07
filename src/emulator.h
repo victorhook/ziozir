@@ -26,27 +26,28 @@
 #define STATUS_BIT_OF 0b00000010
 #define STATUS_BIT_IF 0b00000100
 
-
 /* -- Memory -- */
-#define BIOS_SIZE 256
-#define RAM_SIZE 512
-#define FLASH_SIZE 1024
+#define RAM_SIZE 8192
+#define BIOS_SIZE 512
+#define FLASH_SIZE 512
+
+#define MONITOR_WIDTH 144
+#define MONITOR_HEIGHT 166
+
+#define RAM_END RAM_SIZE-1
+
 #define FLASH_MEMORY_FILE_PATH "/home/victor/coding/projects/ziozir/raw/memory"
 #define BIOS_MEMORY_FILE_PATH "/home/victor/coding/projects/ziozir/raw/bios"
-
 
 /* -- Constants -- */
 #define DEFAULT_PC_INDEX 100
 #define DEFAULT_SP_INDEX 200
-
 
 /* -- Type definitinos -- */
 typedef uint16_t word;
 typedef uint16_t reg;
 typedef uint16_t address;
 typedef uint16_t memoryAddress;
-
-
 typedef struct {
     uint8_t Z;      // Z flag
     uint8_t OF;     // OverFlow flag
