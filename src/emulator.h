@@ -32,7 +32,7 @@
 #define FLASH_SIZE 512
 
 #define MONITOR_WIDTH 144
-#define MONITOR_HEIGHT 166
+#define MONITOR_HEIGHT 160
 
 #define RAM_END RAM_SIZE-1
 
