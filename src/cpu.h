@@ -1,59 +1,15 @@
 #ifndef CPU_H
 #define CPU_H
-#include <stdint.h>
-
-#define LOG_ERROR(msg) printf("Error: %s", msg)
-#define LOG_WARN(msg) printf("Warning: %s", msg)
-#define LOG_INFO(msg) printf("Info: %s", msg)
-#define LOG_DEBUG(msg) printf("Debug: %s", msg)
+#include "emulator.h"
 
 
-typedef struct {
-    uint8_t Z;      // Z flag
-    uint8_t OF;     // OverFlow flag
-    uint8_t IF;     // Interrupt flag
-} StatusReg;
-
-#define REG_OFFSET 0
-#define REG_0 0
-#define REG_1 1
-#define REG_2 2
-#define REG_3 3
-#define REG_4 4
-#define REG_5 5
-#define SP 6
-#define PC 7
-#define STATUS_REG 8
-#define STATUS_REG_Z_FLAG 0
-
-/* --- Primary memory --- */
-#define RAM_SIZE 256
-#define DEFAULT_PC_INDEX 100
-#define DEFAULT_SP_INDEX 200
-#define TOTAL_REGISTERS 8
-
-typedef unsigned char word;
-typedef uint16_t address;
-typedef unsigned char reg;
-
-
-void writeRam(address addr, word value);
-word readRam(address addr);
 word readReg(reg reg);
 void writeReg(reg reg, word value);
 
 
-/* --- Secondary memory --- */
-#define MEMORY_SIZE 1024
-#define MEMORY_FILE_PATH "/home/victor/coding/projects/cpu/src/memory"
-typedef uint16_t memoryAddress;
-
-word readMemory(memoryAddress addr);
-int writeMemory(memoryAddress addr, word value);
-
-
 /* --- Instructions --- */
 typedef enum {
+    /* Arithmetic */
     OP_ADD,     // ADD R1 R2 R3  -> R1 = R2 + R3
     OP_ADDI,    // ADDI R1 R2 2  -> R1 = R2 + 2
     OP_SUB,     // SUB R1 R2 R3  -> R1 = R2 - R3
@@ -68,15 +24,13 @@ typedef enum {
     OP_XORI,    // XORI R1 R2 2  -> R1 = R2 ^ 2
     OP_NOT,     // NOT R1 R2     -> R1 = ~R2
     OP_NOTI,    // NOTI R1 2     -> R1 = ~2
-
-    // Memory -> Register
+    /* Memory -> Register */
     OP_LD,      // LD R1 Label   -> R1 = $[Label]
     OP_LDI,     // LDI R1 2      -> R1 = $[2]
-
-    // Register -> Memory
+    /* Register -> Memory */
     OP_ST,      // ST R1 Label   -> $[Label] = R1
     OP_STI,     // ST R1 2       -> $[2] = R1
-
+    /* Misc */
     OP_PUSH,    // PUSH
     OP_POP,     // POP
     OP_INC,     // INC R1
@@ -88,7 +42,7 @@ typedef enum {
     OP_CALL,
     OP_RET,
     OP_RETI,
-
+    /* Branching */
     OP_JUMP,    // JMP
     OP_JUMPZ,   // JMPZ
     OP_JUMPEQ,  // JMPEQ
@@ -112,7 +66,7 @@ typedef struct {
 
 /* ------------- Instructions ------------------- */
 
-/* Arithmetic */
+/* -- Arithmetic -- */
 
 /* ADD R1 R2 R3  -> R1 = R2 + R3 */
 void opADD(address to, reg r1, reg r2);
@@ -147,7 +101,9 @@ void opINC(reg r);
 /* Decrements register r by 1. */
 void opDEC(reg r);
 
+
 /* -- Memory -- */
+
 /* Loads value at Ram[from] into register r. */
 void opLD(reg r, address from);
 /* Loads value into register r. */
@@ -162,6 +118,7 @@ void opPUSH(reg r);
 void opPOP(reg r);
 
 /* -- Misc -- */
+
 /* Enable interrupts. */
 void opEI();
 /* Disable Interrupts. */
@@ -182,7 +139,9 @@ void opNop();
 // TODO: this
 void opRETI();
 
+
 /* -- Branching -- */
+
 /* Jumps to address addr. */
 void opJUMP(address addr);
 /* Jumps to address addr if z flag is set. */
@@ -211,14 +170,8 @@ char cpuGetc();
 StatusReg getStatusReg();
 void updateStatusReg();
 void updateZFlag(word result);
-
-typedef char token;
-
-
-
 void init_cpu();
 int run();
-
 
 
 #endif

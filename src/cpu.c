@@ -1,75 +1,12 @@
 #include "cpu.h"
+#include "memory.h"
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-#define READ_SREG_BIT(bit) (ram[STATUS_REG] & (1 << bit))
-#define WRITE_SREG_BIT(bit) (ram[STATUS_REG] &= ~(1 << bit))
 
 reg registers[TOTAL_REGISTERS];     // Register file
-address pc;                         // Program counter
 StatusReg sReg;                     // Status register
 
-word ram[RAM_SIZE];
-
-
-reg sp;
-
-
-/* --- Primary memory --- */
-#define WRITE_RAM(value, addr) {ram[addr] = value;}
-#define READ_RAM(addr) {ram[addr]}
-
-inline void writeRam(address addr, word value)
-{
-    ram[addr] = value;
-}
-inline word readRam(address addr)
-{
-    return ram[addr];
-}
-inline word readReg(reg reg)
-{
-    return registers[reg];
-}
-inline void writeReg(reg reg, word value)
-{
-    registers[reg] = value;
-}
-
-
-/* --- Secondary memory --- */
-const char* memoryPath = MEMORY_FILE_PATH;
-word readMemory(memoryAddress addr)
-{
-    word buf;
-    int fd = open(memoryPath, O_RDONLY);
-    if (fd < 0) {
-        LOG_ERROR("Failed to read from memory!");
-        return 0;
-    }
-
-    lseek(fd, addr, SEEK_CUR);
-    read(fd, (void*) &buf, sizeof(buf));
-    close(fd);
-    return buf;
-}
-int writeMemory(memoryAddress addr, word value)
-{
-    int fd = open(memoryPath, O_WRONLY);
-    if (fd < 0) {
-        LOG_ERROR("Failed to write to memory!");
-        return -1;
-    }
-
-    lseek(fd, addr, SEEK_CUR);
-    write(fd, &value, sizeof(word));
-    close(fd);
-    return 1;
-}
+#define READ_SREG_BIT(bit) (registers[STATUS_REG] & (1 << bit))
+#define WRITE_SREG_BIT(bit) (registers[STATUS_REG] &= ~(1 << bit))
 
 
 /* --- Utils --- */
@@ -79,7 +16,9 @@ StatusReg getStatusReg()
 }
 void updateStatusReg()
 {
-    sReg.Z = READ_SREG_BIT(STATUS_REG_Z_FLAG);
+    sReg.Z = READ_SREG_BIT(STATUS_BIT_Z);
+    sReg.OF = READ_SREG_BIT(STATUS_BIT_OF);
+    sReg.IF = READ_SREG_BIT(STATUS_BIT_IF);
 }
 void updateZFlag(word result)
 {
@@ -87,25 +26,33 @@ void updateZFlag(word result)
 }
 void incPc()
 {
-    pc++;
+    registers[PC]++;
 }
 void setPc(address value)
 {
-    pc = value;
+    registers[PC] = value;
 }
 void pushStack(word value)
 {
-    writeRam(sp, value);
-    sp--;
+    writeRam(registers[PC], value);
+    registers[SP]--;
 }
 void popStack(reg r)
 {
-    registers[r] = readRam(sp);
-    sp++;
+    registers[r] = readRam(registers[SP]);
+    registers[SP]++;
 }
 Instruction fetchInstruction()
 {
 
+}
+inline word readReg(reg reg)
+{
+    return registers[reg];
+}
+inline void writeReg(reg reg, word value)
+{
+    registers[reg] = value;
 }
 
 /* --- IO --- */
@@ -122,7 +69,7 @@ char cpuGetc()
 /* --- Instructions --- */
 static inline void arithmetic(address to, word result)
 {
-    WRITE_RAM(to, result);
+    writeRam(to, result);
     updateZFlag(result);
     incPc();
 }
@@ -235,7 +182,7 @@ void opDI()
 
 void opCALL(address to)
 {
-    pushStack(pc);
+    pushStack(registers[PC]);
     setPc(to);
 }
 void opRET()
