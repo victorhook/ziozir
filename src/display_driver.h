@@ -8,9 +8,9 @@
     #define SCREEN_HEIGHT 400
 #endif
 
-struct colorStruct{
+typedef struct{
     unsigned char x;
-};
+} colorStruct;
 
 /* Initializes the display. */
 void display_init();
@@ -19,7 +19,7 @@ void display_init();
 void display_swap_buffers();
 
 /* Puts a colorStruct at given row and col. */
-void display_put(const int row, const int col, const struct colorStruct);
+void display_put(const int row, const int col, const colorStruct);
 
 /* Sends the buffer data to the display. */
 void display_send_buffer();
