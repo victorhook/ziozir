@@ -146,13 +146,13 @@ void opRES(uint8_t bit, reg r)
 {
     registers[r] &= ~(1 << bit);
 }
-void opLD(reg r, address from)
+void opLD(reg r, reg from)
 {
-    registers[r] = readRam(from);
+    registers[r] = readRam(registers[from]);
 }
 void opLDI(reg r, word value)
 {
-    registers[r] = value;
+    registers[r] = readRam(value);
 }
 void opST(reg r, address to)
 {
@@ -162,6 +162,12 @@ void opST(reg r, address to)
 void opSTI(word value, address to)
 {
     writeRam(to, value);
+}
+
+/* --- Misc --- */
+void opMOV(reg r, word value)
+{
+    registers[r] = value;
 }
 void opPUSH(reg r)
 {

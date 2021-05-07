@@ -31,6 +31,7 @@ typedef enum {
     OP_ST,      // ST R1 Label   -> $[Label] = R1
     OP_STI,     // ST R1 2       -> $[2] = R1
     /* Misc */
+    OP_MOV,     // MOV R2 1
     OP_PUSH,    // PUSH
     OP_POP,     // POP
     OP_INC,     // INC R1
@@ -105,8 +106,8 @@ void opDEC(reg r);
 /* -- Memory -- */
 
 /* Loads value at Ram[from] into register r. */
-void opLD(reg r, address from);
-/* Loads value into register r. */
+void opLD(reg r, reg from);
+/* Loads value at Ram[from] into register r. */
 void opLDI(reg r, word value);
 /* Stores register r into Ram[to] */
 void opST(reg r, address to);
@@ -119,6 +120,8 @@ void opPOP(reg r);
 
 /* -- Misc -- */
 
+/* Copies value value into register r. */
+void opMOV(reg r, word value);
 /* Enable interrupts. */
 void opEI();
 /* Disable Interrupts. */
