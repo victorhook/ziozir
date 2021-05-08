@@ -2,6 +2,8 @@ import numpy as np
 import tkinter as tk
 from tkinter import ttk
 
+from glyph import Glyph, GlyphHandler
+from scrollframe import ScrollableFrame
 
 DIMENSION_X = 160
 DIMENSINO_Y = 144
@@ -80,7 +82,6 @@ class Output(ttk.LabelFrame):
         return text
 
 
-
 class Param(tk.Frame):
 
     def __init__(self, master, text, *args, value=None, **kwargs):
@@ -135,6 +136,7 @@ class ToolBox(ttk.LabelFrame):
     def get_glyphname(self) -> str:
         return self.output.read('Glyph name')
 
+
 class App(tk.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -144,23 +146,30 @@ class App(tk.Tk):
         self.tools = ToolBox(self)
         self.tools.pack()
 
-        self.update = ttk.Button(self, text='Update', command=self._update)
-        self.update.pack()
+        self.update_btn = ttk.Button(self, text='Update', command=self._update)
+        self.update_btn.pack()
 
         self.frame = tk.Frame(self)
         self.canvas = Canvas(self.frame)
         self.output = Output(self.frame)
+        self.glyphs = GlyphHandler(self.frame, self._select, 300, 300)
 
-        self.canvas.pack(side='left', padx=30)
-        self.output.pack(side='left', padx=30)
+
+        self.glyphs.grid(row=0, column=0, padx=30, pady=20)
+        self.canvas.grid(row=0, column=1, padx=30, pady=20)
+        self.output.grid(row=1, column=0, columnspan=2, padx=30, pady=20)
+
         self.frame.pack()
+
+    def _select(self, glyph: Glyph) -> None:
+        #self._update(glyph.data)
+        self.output.update_text(self.canvas.get_cells(),
+                                self.tools.get_glyphname())
 
     def _update(self):
         text = self.output.update_text(self.canvas.get_cells(),
                                        self.tools.get_glyphname())
 
-        if self.tools.is_auto():
-            self._append_to_file(self.tools.get_outputfile(), text)
 
     def _append_to_file(self, filepath: str, data: str):
         with open(filepath, 'a') as f:
