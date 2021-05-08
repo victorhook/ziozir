@@ -2,7 +2,7 @@ import numpy as np
 import tkinter as tk
 from tkinter import ttk
 
-from glyph import Glyph, GlyphHandler
+from glyph import Glyph, GlyphHandler, GlyphCell
 from scrollframe import ScrollableFrame
 
 DIMENSION_X = 160
@@ -27,12 +27,21 @@ class Canvas(ttk.LabelFrame):
                 new_cell.grid(row=row+1, column=col+1)
                 self.cells[row].append(new_cell)
 
+    def update_values(self, values: list) -> None:
+        """ [0, 1, 2] """
+        for row in range(8):
+            for col in range(8):
+                self.cells[row][col].update_value(row * 8 + col)
+
     def get_cells(self) -> np.ndarray:
         matrix = np.zeros((8, 8))
         for row in range(8):
             for col in range(8):
                 matrix[row, col] = 1 if self.cells[row][col].on else 0
         return matrix
+
+    def set_cell(self, glyph: Glyph) -> None:
+        self.update_values(glyph.data)
 
 
 class Cell(tk.Frame):
@@ -52,7 +61,14 @@ class Cell(tk.Frame):
 
     def _click(self, e):
         self.on = not self.on
+        self._set_bg()
+
+    def _set_bg(self) -> None:
         self.config(bg=self.COLORS[self.on])
+
+    def update_value(self, value: int) -> None:
+        self.on = value == 1
+        self._set_bg()
 
 
 class Output(ttk.LabelFrame):
@@ -152,8 +168,7 @@ class App(tk.Tk):
         self.frame = tk.Frame(self)
         self.canvas = Canvas(self.frame)
         self.output = Output(self.frame)
-        self.glyphs = GlyphHandler(self.frame, self._select, 300, 300)
-
+        self.glyphs = GlyphHandler(self.frame, self, 300, 300)
 
         self.glyphs.grid(row=0, column=0, padx=30, pady=20)
         self.canvas.grid(row=0, column=1, padx=30, pady=20)
@@ -161,15 +176,17 @@ class App(tk.Tk):
 
         self.frame.pack()
 
-    def _select(self, glyph: Glyph) -> None:
-        #self._update(glyph.data)
-        self.output.update_text(self.canvas.get_cells(),
-                                self.tools.get_glyphname())
+    def cb_save(self, glyph: GlyphCell) -> None:
+        glyph_values = self.canvas.get_cells()
+        print(glyph_values)
+        glyph.update_data(glyph_values)
+        self.glyphs.save()
+
+    def cb_select(self, glyph: GlyphCell) -> None:
+        self.canvas.set_cell(glyph)
 
     def _update(self):
-        text = self.output.update_text(self.canvas.get_cells(),
-                                       self.tools.get_glyphname())
-
+        pass
 
     def _append_to_file(self, filepath: str, data: str):
         with open(filepath, 'a') as f:
