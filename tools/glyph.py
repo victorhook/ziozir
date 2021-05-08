@@ -1,54 +1,55 @@
-from dataclasses import dataclass
 import json
 import threading
 import tkinter as tk
-from tkinter import ttk
+from scrollframe import ScrollableFrame
 from PIL import Image, ImageTk
 import numpy as np
-from scrollframe import ScrollableFrame
 import os
-
-if __name__ == '__main__':
-    k = np.zeros((8, 8, 3), dtype=np.uint8)
-    for row in range(8):
-        for col in range(8):
-            k[row, col] = (255, 0, 0)
-    image = Image.fromarray(k, mode='RGB')
-    image = image.resize((30, 30), Image.NEAREST)
-    image.show()
 
 
 GLYPH_FILEPATH = os.path.join(os.path.dirname(__file__), 'glyphs.json')
+GLYPH_NAME = 'Glyph '
 
 
 def default_values() -> list:
     return [[255 for i in range(8)] for i in range(8)]
 
 
+def default_names(glyphs: dict) -> str:
+    max = 0
+    for glyph in glyphs:
+        name = glyph.name
+        if name.startswith(GLYPH_NAME):
+            nbr = int(name.split(GLYPH_NAME)[1])
+            if nbr > max:
+                max = nbr
+
+    return f'{GLYPH_NAME}{max+1}'
+
+
 def glyph_list_to_np_matrix(data: list) -> bytes:
     buff = np.zeros((8, 8, 3), dtype=np.uint8)
-    buff.fill(255)
     for row in range(8):
         for col in range(8):
-            value = data[row][col]
-            buff[row, col] = [int(value)*255, 0, 0]
-            print(row, col, [value, 0, 0])
-    return buff
+            value = int(data[row][col]) * 255
 
+            # Invert to make 1 -> black
+            buff[row, col] = [255-value, 255-value, 255-value]
+
+    return buff
 
 
 class GlyphCell(tk.Frame):
 
     def __init__(self, master, click_cb, name: str, data: list):
-        super().__init__(master, highlightthickness=1, 
+        super().__init__(master, highlightthickness=1,
                          highlightbackground='black')
-        self._img_width = 30
-        self._img_height = 30
+        self._img_width = 32
+        self._img_height = 32
 
-        self._name = tk.Label(self, text=name, width=30)
-        #self.canvas = tk.Canvas(self, width=self._img_width, 
-                                #height=self._img_height)
-        self.image = tk.Label(self, width=self._img_width, height=self._img_height)
+        self._name = tk.Label(self, text=name, width=32)
+        self.image = tk.Label(self, relief='ridge', width=self._img_width,
+                              height=self._img_height)
         self.update_data(name, data)
 
         self._name.pack(side='left')
@@ -84,12 +85,10 @@ class GlyphCell(tk.Frame):
     def _update_image(self):
         data = glyph_list_to_np_matrix(self.data)
         image = Image.fromarray(data, mode='RGB')
-        image = image.resize((self._img_width, self._img_height), Image.NEAREST)
+        image = image.resize((self._img_width, self._img_height),
+                             Image.NEAREST)
         self._image = ImageTk.PhotoImage(image)
         self.image.config(image=self._image)
-        #self.canvas.create_image((self._img_width/2, 
-                                  #self._img_height/2), 
-                                  #image=self._image)
 
 
 class GlyphHandler(tk.LabelFrame):
@@ -145,10 +144,16 @@ class GlyphHandler(tk.LabelFrame):
             self.glyphs.remove(self._active_glyph)
             self._active_glyph.destroy()
             self.save()
+            self._active_glyph = None
 
     def _add(self) -> None:
-        self.add(GlyphCell(self.content(), self._click, 'Glyph', default_values()))
+        self.add(GlyphCell(self.content(), self._click,
+                 default_names(self.glyphs),
+                 default_values()))
         threading.Thread(target=self.save).start()
+
+    def get_glyphs(self) -> list:
+        return self.glyphs
 
     def open(self) -> None:
         self.data = {}
@@ -156,7 +161,8 @@ class GlyphHandler(tk.LabelFrame):
             with open(self.filepath, 'r') as f:
                 self.data = json.load(f)
                 for name, data in self.data.items():
-                    self.add(GlyphCell(self.content(), self._click, name, data))
+                    self.add(GlyphCell(self.content(), self._click, name,
+                             data))
         except Exception:
             print(f'Failed to open file {self.filepath}. Creating new...')
             self.data = {}
@@ -173,4 +179,3 @@ class GlyphHandler(tk.LabelFrame):
 
         with open(self.filepath, 'w') as f:
             json.dump(data, f, indent=4)
-

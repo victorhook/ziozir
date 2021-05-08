@@ -1,14 +1,16 @@
 import numpy as np
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
+import os
 
 from params import Param, ParamHolder
 from glyph import GlyphHandler, GlyphCell
+from src_generator import generate_source_code
 
 
 DIMENSION_X = 160
 DIMENSINO_Y = 144
-
 
 
 class Cell(tk.Frame):
@@ -65,22 +67,20 @@ class Canvas(ttk.LabelFrame):
 
         self.name = Param(self, 'Glyph name')
         self.name.pack()
-        
+
         self.help = tk.Label(self, text='Ctrl to Fill, Shift to clear')
         self.help.pack()
 
         self.grid_frame = tk.Frame(self)
         self.grid_frame.pack()
 
-
-
         self.cells = []
         for row in range(8):
             self.cells.append([])
-            tk.Label(self.grid_frame, text=str(row), width=4, height=1).grid(row=row+1,
-                                                                  column=0)
-            tk.Label(self.grid_frame, text=str(row), width=2, height=1).grid(row=0,
-                                                                  column=row+1)
+            tk.Label(self.grid_frame, text=str(row), width=4, height=1).grid(
+                     row=row+1, column=0)
+            tk.Label(self.grid_frame, text=str(row), width=2, height=1).grid(
+                     row=0, column=row+1)
             for col in range(8):
                 new_cell = Cell(self.grid_frame, row, col)
                 new_cell.grid(row=row+1, column=col+1)
@@ -118,7 +118,8 @@ class Output(ttk.LabelFrame):
 
     def __init__(self, master):
         super().__init__(master, text="Output")
-        self.textbox = tk.Text(self, width=64, height=12, font=("Helvetica", 16))
+        self.textbox = tk.Text(self, width=64, height=12,
+                               font=("Helvetica", 16))
         self.textbox.pack(padx=10, pady=5)
 
     def update_text(self, values: np.ndarray, name: str):
@@ -148,8 +149,11 @@ class ToolBox(ttk.LabelFrame):
         self.dims = ParamHolder(self, 'Dimension')
         self.dims.add('X', DIMENSION_X)
         self.dims.add('Y', DIMENSINO_Y)
-
         self.dims.pack(side='left')
+
+        self.update_btn = ttk.Button(self, text='Generate source file',
+                                     command=master.cb_save_source)
+        self.update_btn.pack(side='left')
 
 
 class App(tk.Tk):
@@ -161,9 +165,6 @@ class App(tk.Tk):
         self.tools = ToolBox(self)
         self.tools.pack()
 
-        self.update_btn = ttk.Button(self, text='Update', command=self._update)
-        self.update_btn.pack()
-
         self.frame = tk.Frame(self)
         self.canvas = Canvas(self.frame)
         self.output = Output(self.frame)
@@ -174,6 +175,12 @@ class App(tk.Tk):
         self.output.grid(row=1, column=0, columnspan=2, padx=30, pady=20)
 
         self.frame.pack()
+
+    def cb_save_source(self) -> None:
+        filepath = filedialog.asksaveasfilename()
+        filename = os.path.basename(filepath)
+        #src = generate_source_code(filename, self.glyphs.get_glyphs())
+        print(filename)
 
     def cb_save(self, glyph: GlyphCell) -> None:
         glyph_name, data_values = self.canvas.get_values()
