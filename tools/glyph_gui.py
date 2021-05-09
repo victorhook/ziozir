@@ -66,14 +66,21 @@ class Canvas(tk.LabelFrame):
     def __init__(self, master):
         super().__init__(master, text="8x8 Map", **STYLE_FRAME)
 
-        self.name = Param(self, 'Glyph name', **STYLE_FRAME)
-        self.name.pack()
+        self.top_frame = tk.Frame(self, **STYLE_FRAME)
 
-        self.help = tk.Label(self, text='Ctrl to Fill, Shift to clear',
+        self.name = Param(self.top_frame, 'Glyph name')
+        self.help = tk.Label(self.top_frame, text='Ctrl to Fill, Shift to clear',
                              **STYLE_LABEL)
-        self.help.pack()
+        self._clear = tk.Button(self.top_frame, text='Clear', **STYLE_BUTTON,
+                                command=self.clear)
+
+        self.name.grid(row=0, column=0, columnspan=2, pady=10)
+        self.help.grid(row=1, column=0, padx=10, pady=10)
+        self._clear.grid(row=1, column=1, padx=10, pady=10)
 
         self.grid_frame = tk.Frame(self, **STYLE_FRAME)
+
+        self.top_frame.pack()
         self.grid_frame.pack()
 
         self.cells = []
@@ -87,6 +94,9 @@ class Canvas(tk.LabelFrame):
                 new_cell = Cell(self.grid_frame, row, col)
                 new_cell.grid(row=row+1, column=col+1)
                 self.cells[row].append(new_cell)
+
+    def clear(self):
+        self.update_values(np.zeros((8, 8)).tolist())
 
     def release(self):
         self.mouse_down = False
