@@ -76,13 +76,13 @@ static int _readMemoryIntoUntilEof(void* buf, const size_t maxLen, const char* f
 
 
 /* --- RAM --- */
-void writeRam(address addr, word value)
-{
-    ram[addr] = value;
-}
 word readRam(address addr)
 {
     return ram[addr];
+}
+void writeRam(address addr, word value)
+{
+    ram[addr] = value;
 }
 
 

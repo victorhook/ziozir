@@ -5,8 +5,8 @@
 reg registers[TOTAL_REGISTERS];     // Register file
 StatusReg sReg;                     // Status register
 
-#define READ_SREG_BIT(bit) (registers[STATUS_REG] & (1 << bit))
-#define WRITE_SREG_BIT(bit) (registers[STATUS_REG] &= ~(1 << bit))
+#define READ_SREG_BIT(bit) (registers[SREG] & (1 << bit))
+#define WRITE_SREG_BIT(bit) (registers[SREG] &= ~(1 << bit))
 
 
 /* --- Utils --- */
@@ -193,8 +193,8 @@ void opCALL(address to)
 }
 void opRET()
 {
-    popStack(REG_0);
-    setPc(registers[REG_0]);
+    popStack(REG_RET);
+    setPc(registers[REG_RET]);
 }
 void opNOP()
 {

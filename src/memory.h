@@ -9,8 +9,8 @@ extern word flash[FLASH_SIZE];
 
 
 /* --- RAM --- */
-word readReg(reg reg);
-void writeReg(reg reg, word value);
+word readRam(address addr);
+void writeRam(address addr, word value);
 
 
 /* --- Flash --- */
