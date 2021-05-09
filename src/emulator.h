@@ -9,16 +9,21 @@
 #define LOG_DEBUG(msg) printf("Debug: %s", msg)
 
 /* -- Registers --*/
-#define REG_0 0
-#define REG_1 1
-#define REG_2 2
-#define REG_3 3
-#define REG_4 4
-#define REG_5 5
-#define REG_6 6
-#define SP 7
-#define PC 8
-#define STATUS_REG 9
+enum Register {
+    R0,
+    R1,
+    R2,
+    R3,
+    R4,
+    R5,
+    R6,
+    SP,
+    PC,
+    SREG
+};
+
+#define REG_RET R0       // R0 is used during procedure calls.
+#define REG_INT R1       // Return value from BIOS interrupts are put in R1.
 #define TOTAL_REGISTERS 10
 
 /* Status reg bits */
