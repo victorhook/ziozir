@@ -1,12 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
 
+from styles import STYLE_LABEL, STYLE_FRAME
+
 
 class Param(tk.Frame):
 
     def __init__(self, master, text, *args, value=None, **kwargs):
-        super().__init__(master, *args, **kwargs)
-        self.label = tk.Label(self, text=text)
+        super().__init__(master, **STYLE_FRAME)
+        self.label = tk.Label(self, text=text, **STYLE_LABEL)
         self.entry = tk.Entry(self)
         if value is not None:
             self.entry.insert(0, value)
@@ -22,9 +24,9 @@ class Param(tk.Frame):
         self.entry.insert(0, value)
 
 
-class ParamHolder(ttk.LabelFrame):
+class ParamHolder(tk.LabelFrame):
     def __init__(self, master, title, *args, **kwargs):
-        super().__init__(master, *args, text=title, **kwargs)
+        super().__init__(master, *args, text=title, **kwargs, **STYLE_FRAME)
         self.params = {}
 
     def add(self, name: str, value=None):

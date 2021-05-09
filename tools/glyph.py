@@ -5,7 +5,10 @@ from scrollframe import ScrollableFrame
 from PIL import Image, ImageTk
 import numpy as np
 import os
+from tkinter import messagebox
 
+
+from styles import STYLE_LABEL, STYLE_FRAME, STYLE_BUTTON
 
 GLYPH_FILEPATH = os.path.join(os.path.dirname(__file__), 'glyphs.json')
 GLYPH_NAME = 'Glyph '
@@ -42,14 +45,13 @@ def glyph_list_to_np_matrix(data: list) -> bytes:
 class GlyphCell(tk.Frame):
 
     def __init__(self, master, click_cb, name: str, data: list):
-        super().__init__(master, highlightthickness=1,
-                         highlightbackground='black')
+        super().__init__(master, **STYLE_FRAME)
         self._img_width = 32
         self._img_height = 32
 
         self._name = tk.Label(self, text=name, width=32)
         self.image = tk.Label(self, relief='ridge', width=self._img_width,
-                              height=self._img_height)
+                              height=self._img_height, **STYLE_LABEL)
         self.update_data(name, data)
 
         self._name.pack(side='left')
@@ -95,19 +97,20 @@ class GlyphHandler(tk.LabelFrame):
 
     def __init__(self, master, app, width, height,
                  filepath: str = GLYPH_FILEPATH):
-        super().__init__(master, text='Glyphs')
+        super().__init__(master, text='Glyphs', **STYLE_FRAME)
         self._select_cb = app.cb_select
         self._save_cb = app.cb_save
+        self._app = app
 
         self.content = ScrollableFrame(self, width, height)
 
-        self.btn_container = tk.Frame(self)
+        self.btn_container = tk.Frame(self, **STYLE_FRAME)
         self.add_btn = tk.Button(self.btn_container, text='New glyph',
-                                 command=self._add)
+                                 command=self._add, **STYLE_BUTTON)
         self.del_btn = tk.Button(self.btn_container, text='Delete glyph',
-                                 command=self._del)
+                                 command=self._del, **STYLE_BUTTON)
         self.save_btn = tk.Button(self.btn_container, text='Save',
-                                  command=self._save)
+                                  command=self._save, **STYLE_BUTTON)
 
         self.add_btn.pack(side='left')
         self.del_btn.pack(side='left')
@@ -155,6 +158,14 @@ class GlyphHandler(tk.LabelFrame):
     def get_glyphs(self) -> list:
         return self.glyphs
 
+    def _user_wants_automatic_new_file(self) -> str:
+        result = messagebox.askyesno('No file found',
+                                     'Configuration json file can\'t be found'
+                                     ' or can\'t be parsed.\n'
+                                     'Do you want to make a new one?\n'
+                                     'Press no to fix it manually.')
+        return result
+
     def open(self) -> None:
         self.data = {}
         try:
@@ -164,9 +175,12 @@ class GlyphHandler(tk.LabelFrame):
                     self.add(GlyphCell(self.content(), self._click, name,
                              data))
         except Exception:
-            print(f'Failed to open file {self.filepath}. Creating new...')
-            self.data = {}
-            self.save()
+            if self._user_wants_automatic_new_file():
+                print(f'Failed to open file {self.filepath}. Creating new...')
+                self.data = {}
+                self.save()
+                self._app.update_status('Created new json file at '
+                                        f'{self.filepath} ')
 
     def add(self, glyph: GlyphCell) -> None:
         self.glyphs.append(glyph)

@@ -1,6 +1,7 @@
 from glyph import GlyphCell
 
 
+STRUCT = 'Glyph'
 STRUCT_NAME = format('__GLYPH_{}')
 
 
@@ -8,6 +9,7 @@ def _wrap_as_headerfile(filename: str, data: str) -> str:
     """ Wraps the data content as a header fileformat, with ifdef-guards. """
     defguard = filename.split('.h')[0]
     defguard = defguard.upper()
+    defguard = defguard.replace(' ', '_')
     defguard += '_H'
 
     output = f'#ifndef {defguard}\n'
@@ -24,7 +26,8 @@ def generate_source_code(filename: str, glyphs: list) -> str:
     for glyph in glyphs:
         # 8x8 Matrix
         output += '\n'
-        output += STRUCT_NAME.format(glyph.name)
+        output += f'{STRUCT} '
+        output += STRUCT_NAME.format(glyph.name.replace(' ', '_'))
         output += ' = { \n'
         for row in range(8):
             output += '    '
