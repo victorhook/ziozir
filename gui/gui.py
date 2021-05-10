@@ -9,6 +9,7 @@ from PIL import Image, ImageTk
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
 
+
 def on_file_load(asd):
     print(asd)
 
@@ -57,7 +58,6 @@ class FileWatcher(threading.Thread):
             if m_time != last_change:
                 self._notify_changes()
                 last_change = m_time
-
 
     def _notify_changes(self) -> None:
         with open(self._filepath, 'rb') as f:

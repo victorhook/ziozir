@@ -10,12 +10,11 @@ from line import Line
 from instructions import InstructionFactory, Instruction
 
 
-
 class Assembler:
 
     _re_comments = re.compile(';.*')
     _re_label = re.compile('[a-zA-Z_][a-zA-Z_0-9]+:')
-    
+
     @classmethod
     def _get_row_tokens(cls, row: str) -> list:
         """ Returns the tokens from the given string row.
@@ -37,7 +36,7 @@ class Assembler:
 
         if type(name) is list:
             name = name[0]
-        
+
         return type(cls._re_label.match(name)) is re.Match
 
     @classmethod
@@ -48,10 +47,10 @@ class Assembler:
 
         # Get all lines that has tokens.
         for line in lines:
-            
+
             # Check if the first token is a label.
             label_name = line.tokens[0]
-            
+
             if cls._is_label(label_name):
                 label_name = cls._trim_label_name(label_name)
 
@@ -59,7 +58,7 @@ class Assembler:
                 if label_name in labels:
                     raise AssemblerException(f'Label {label_name} already '
                                              'defined', line.real_line)
-                
+
                 # The address of the label is its address + 1.
                 labels[label_name] = line.code_line + 1
 
@@ -77,18 +76,17 @@ class Assembler:
                     if token in labels:
                         address = labels[token]
                         line.tokens[index] = address
-        
+
         return lines
 
-    
     @classmethod
-    def _get_lines_with_content(cls, lines: list, 
-                                with_labels : bool = True) -> list:
+    def _get_lines_with_content(cls, lines: list,
+                                with_labels: bool = True) -> list:
         if with_labels:
             return filter(lambda line: line.tokens, lines)
         else:
-            return filter(lambda line: line.tokens and 
-                                       not cls._is_label(line.tokens), lines)
+            return filter(lambda line: line.tokens and
+                          not cls._is_label(line.tokens), lines)
 
     # 1.
     @classmethod
@@ -100,13 +98,13 @@ class Assembler:
     @classmethod
     def tokenize(cls, input: str) -> list:
         """ Tokenizes the input string into a list of tokens. """
-        
+
         code_lines = []
         valid_code_line = 0
         for row_nbr, row in enumerate(input.splitlines()):
             # Check if current line has any content.
             tokens = cls._get_row_tokens(row)
-            
+
             # We want to keep track of the current (valid) code line as well
             # as the raw input rows.
             if tokens is not None and not cls._is_label(tokens):
@@ -144,7 +142,8 @@ class Assembler:
             instr = InstructionFactory.build_instruction(line)
 
             if not instr.is_valid:
-                raise AssemblerException(f'Not a valid instruction: {instr}')
+                raise AssemblerException(f'Not a valid instruction: {instr}',
+                                         line.real_line)
 
             instructions.append(instr)
 
@@ -161,4 +160,3 @@ class Assembler:
     def convert_to_binary(cls, input: list) -> bytes:
         """ Converts a list of instructions into bytes. """
         return input
-
