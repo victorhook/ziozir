@@ -44,6 +44,7 @@ class OpCode:
     HALT = 39
     UNKNOWN = 40
 
+
 OPCODES = {
     "ADD": 0,
     "ADDI": 1,
@@ -90,14 +91,14 @@ OPCODES = {
 
 
 class Instruction:
-    
+
     def __init__(self, line: Line):
         self.line = line
         self.tokens = line.tokens
         self.is_valid = True
 
     def __repr__(self):
-        return f' '.join(str(tok) for tok in self.tokens)
+        return ' '.join(str(tok) for tok in self.tokens)
 
     def set_args(self, args: list) -> None:
         pass
@@ -114,6 +115,7 @@ class InvalidInstruction(Instruction):
     def __init__(self, msg, *args):
         self.is_valid = False
         self.msg = msg
+        self.tokens = []
 
 
 class ValidInstruction(Instruction):

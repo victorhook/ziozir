@@ -30,7 +30,7 @@ class CpuClient(threading.Thread):
     def execute_one_instruction(self) -> None:
         """ Executes a single instruction. """
         # | action |
-        # |   0   |
+        # |   0    |
         self._send(struct.pack('<B', Action.ACTION_EXECUTE))
 
     def reset(self) -> None:
