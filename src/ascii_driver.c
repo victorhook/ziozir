@@ -21,6 +21,7 @@ void display_write_char(const int row, const int col, const char c)
     int offsetX = col * GLYPH_SIZE;
     int offsetY = row * GLYPH_SIZE;
     _write_char(offsetX, offsetY, c);
+    return GLYPH_SIZE;
 }
 
 void display_write_string(const int row, const int col, const char* string)
