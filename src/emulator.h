@@ -57,6 +57,10 @@ typedef struct {
     uint8_t Z;      // Z flag
     uint8_t OF;     // OverFlow flag
     uint8_t IF;     // Interrupt flag
+    uint8_t S;      // Signed flag
+    uint8_t V;      // Two's compliment Overflow flag
+    uint8_t N;      // Negative
+    uint8_t C;      // Carry
 } StatusReg;
 
 
