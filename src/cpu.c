@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include "memory.h"
+#include <string.h>
 
 
 reg registers[TOTAL_REGISTERS];     // Register file
@@ -42,10 +43,6 @@ void popStack(reg r)
     registers[r] = readRam(registers[SP]);
     registers[SP]++;
 }
-Instruction fetchInstruction()
-{
-
-}
 inline word readReg(reg reg)
 {
     return registers[reg];
@@ -53,6 +50,15 @@ inline word readReg(reg reg)
 inline void writeReg(reg reg, word value)
 {
     registers[reg] = value;
+}
+Instruction fetchInstruction(word instruction)
+{
+    Instruction instr;
+    memset((void*) &instr, 0, sizeof(instr));
+    instr.op = (instruction & OPCODE_MASK) >> (32 - (OPCODE_BITS));
+    instr.args[0] = (instruction & REG_MASK) >> (32 - (REG_BITS));
+    instr.args[1] = (instruction & (32 - OPCODE_BITS - REG_BITS));
+    return instr;
 }
 
 /* --- IO --- */
@@ -67,68 +73,68 @@ char cpuGetc()
  
 
 /* --- Instructions --- */
-static inline void arithmetic(address to, word result)
+static inline void arithmetic(reg r, word result)
 {
-    writeRam(to, result);
+    registers[r] = result;
     updateZFlag(result);
     incPc();
 }
 /* Arithmetic */
-void opADD(address to, reg r1, reg r2)
+void opADD(reg r1, reg r2)
 {
-    arithmetic(to, registers[r1] + registers[r2]);
+    arithmetic(r1, registers[r1] + registers[r2]);
 }
-void opADDI(address to, reg r, word op)
+void opADDI(reg r, word constant)
 {
-    arithmetic(to, registers[r] + op);
+    arithmetic(r, registers[r] + constant);
 }
-void opSUB(address to, reg r1, reg r2)
+void opSUB(reg r1, reg r2)
 {
-    arithmetic(to, registers[r1] - registers[r2]);
+    arithmetic(r1, registers[r1] - registers[r2]);
 }
-void opSUBI(address to, reg r, word op)
+void opSUBI(reg r, word constant)
 {
-    arithmetic(to, registers[r] - op);
+    arithmetic(r, registers[r] - constant);
 }
-void opMUL(address to, reg r1, reg r2)
+void opMUL(reg r1, reg r2)
 {
-    arithmetic(to, registers[r1] * registers[r2]);
+    arithmetic(r1, registers[r1] * registers[r2]);
 }
-void opMULI(address to, reg r, word op)
+void opMULI(reg r, word constant)
 {
-    arithmetic(to, registers[r] * op);
+    arithmetic(r, registers[r] * constant);
 }
-void opAND(address to, reg r1, reg r2)
+void opAND(reg r1, reg r2)
 {
-    arithmetic(to, registers[r1] & registers[r2]);
+    arithmetic(r1, registers[r1] & registers[r2]);
 }
-void opANDI(address to, reg r, word op)
+void opANDI(reg r, word constant)
 {
-    arithmetic(to, registers[r] & op);
+    arithmetic(r, registers[r] & constant);
 }
-void opNOT(address to, reg r)
+void opNOT(reg r1, reg r2)
 {
-    arithmetic(to, ~registers[r]);
+    arithmetic(r1, ~registers[r2]);
 }
-void opNOTI(address to, word op)
+void opNOTI(reg r, word constant)
 {
-    arithmetic(to, ~op);
+    arithmetic(r, ~constant);
 }
-void opOR(address to, reg r1, reg r2)
+void opOR(reg r1, reg r2)
 {
-    arithmetic(to, registers[r1] || registers[r2]);
+    arithmetic(r1, registers[r1] || registers[r2]);
 }
-void opORI(address to, reg r, word op)
+void opORI(reg r, word constant)
 {
-    arithmetic(to, registers[r] || op);
+    arithmetic(r, registers[r] || constant);
 }
-void opXOR(address to, reg r1, reg r2)
+void opXOR(reg r1, reg r2)
 {
-    arithmetic(to, registers[r1] ^ registers[r2]);
+    arithmetic(r1, registers[r1] ^ registers[r2]);
 }
-void opXORI(address to, reg r, word op)
+void opXORI(reg r, word constant)
 {
-    arithmetic(to, registers[r] ^ op);
+    arithmetic(r, registers[r] ^ constant);
 }
 void opINC(reg r)
 {
@@ -177,7 +183,11 @@ void opCMPI(reg r, word v)
 {
     updateStatusRegister(registers[r] - v);
 }
-void opMOV(reg r, word value)
+void opMOV(reg dst, reg src)
+{
+    registers[dst] = registers[src];
+}
+void opMOVI(reg r, word value)
 {
     registers[r] = value;
 }
@@ -287,37 +297,38 @@ void cpu_init()
 
 int cpu_run()
 {
+    word* instructions;
     char msg[200];
     int running = 1;
     int instrNbr = 0;
-    Instruction instr = fetchInstruction();
+    Instruction instr = fetchInstruction(instructions[0]);
 
     while (running) {
         switch (instr.op) {
             /* Arithmetic */
             case OP_ADD:
-                opADD(instr.args[0], instr.args[1], instr.args[2]);
+                opADD(instr.args[0], instr.args[1]);
                 break;
             case OP_ADDI:
-                opADDI(instr.args[0], instr.args[1], instr.args[2]);
+                opADDI(instr.args[0], instr.args[1]);
                 break;
             case OP_SUB:
-                opSUB(instr.args[0], instr.args[1], instr.args[2]);
+                opSUB(instr.args[0], instr.args[1]);
                 break;
             case OP_SUBI:
-                opSUBI(instr.args[0], instr.args[1], instr.args[2]);
+                opSUBI(instr.args[0], instr.args[1]);
                 break;
             case OP_MUL:
-                opMUL(instr.args[0], instr.args[1], instr.args[2]);
+                opMUL(instr.args[0], instr.args[1]);
                 break;
             case OP_MULI:
-                opMULI(instr.args[0], instr.args[1], instr.args[2]);
+                opMULI(instr.args[0], instr.args[1]);
                 break;
             case OP_AND:
-                opAND(instr.args[0], instr.args[1], instr.args[2]);
+                opAND(instr.args[0], instr.args[1]);
                 break;
             case OP_ANDI:
-                opANDI(instr.args[0], instr.args[1], instr.args[2]);
+                opANDI(instr.args[0], instr.args[1]);
                 break;
             case OP_NOT:
                 opNOT(instr.args[0], instr.args[1]);
@@ -326,16 +337,16 @@ int cpu_run()
                 opNOTI(instr.args[0], instr.args[1]);
                 break;
             case OP_OR:
-                opOR(instr.args[0], instr.args[1], instr.args[2]);
+                opOR(instr.args[0], instr.args[1]);
                 break;
             case OP_ORI:
-                opORI(instr.args[0], instr.args[1], instr.args[2]);
+                opORI(instr.args[0], instr.args[1]);
                 break;
             case OP_XOR:
-                opXOR(instr.args[0], instr.args[1], instr.args[2]);
+                opXOR(instr.args[0], instr.args[1]);
                 break;
             case OP_XORI:
-                opXORI(instr.args[0], instr.args[1], instr.args[2]);
+                opXORI(instr.args[0], instr.args[1]);
                 break;
             case OP_LD:
                 opLD(instr.args[0], instr.args[1]);
@@ -364,22 +375,22 @@ int cpu_run()
                 opJUMPZ(instr.args[0]);
                 break;
             case OP_JUMPEQ:
-                opJUMPEQ(instr.args[0], instr.args[1], instr.args[2]);
+                opJUMPEQ(instr.args[0], instr.args[1]);
                 break;
             case OP_JUMPNEQ:
-                opJUMPNEQ(instr.args[0], instr.args[1], instr.args[2]);
+                opJUMPNEQ(instr.args[0], instr.args[1]);
                 break;
             case OP_JUMPGT:
-                opJUMPGT(instr.args[0], instr.args[1], instr.args[2]);
+                opJUMPGT(instr.args[0], instr.args[1]);
                 break;
             case OP_JUMPGTE:
-                opJUMPGTE(instr.args[0], instr.args[1], instr.args[2]);
+                opJUMPGTE(instr.args[0], instr.args[1]);
                 break;
             case OP_JUMPLT:
-                opJUMPLT(instr.args[0], instr.args[1], instr.args[2]);
+                opJUMPLT(instr.args[0], instr.args[1]);
                 break;
             case OP_JUMPLTE:
-                opJUMPLTE(instr.args[0], instr.args[1], instr.args[2]);
+                opJUMPLTE(instr.args[0], instr.args[1]);
                 break;
 
             /* MISC */
