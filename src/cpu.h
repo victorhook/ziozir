@@ -6,7 +6,7 @@
 word readReg(reg reg);
 void writeReg(reg reg, word value);
 
-
+#define BITS_PER_WORD 32
 #define OPCODE_MASK 4227858432
 #define OPCODE_BITS 6
 #define REG_MASK 62914560
@@ -53,14 +53,14 @@ typedef enum {
     OP_RET,
     OP_RETI,
     /* Branching */
-    OP_JUMP,    // JMP
-    OP_JUMPZ,   // JMPZ
-    OP_JUMPEQ,  // JMPEQ
-    OP_JUMPNEQ, // JMPNEQ
-    OP_JUMPGT,  // JPMGT
-    OP_JUMPGTE, // JMPGTE
-    OP_JUMPLT,  // JMPLT
-    OP_JUMPLTE, // JMPLTE
+    OP_JMP,     // JMP
+    OP_JMPZ,    // JMPZ
+    OP_JMPEQ,   // JMPEQ
+    OP_JMPNEQ,  // JMPNEQ
+    OP_JMPGT,   // JPMGT
+    OP_JMPGTE,  // JMPGTE
+    OP_JMPLT,   // JMPLT
+    OP_JMPLTE,  // JMPLTE
     OP_NOP,     // NOP
     OP_HALT,    // HALT
     OP_UNKNOWN
@@ -161,21 +161,21 @@ void opRETI();
 /* -- Branching -- */
 
 /* Jumps to address addr. */
-void opJUMP(address addr);
+void opJMP(address addr);
 /* Jumps to address addr if z flag is set. */
-void opJUMPZ(address addr);
-/* Jumps to address addr if op1 == op2. */
-void opJUMPEQ(address addr, word op1, word op2);
-/* Jumps to address addr if op1 != op2. */
-void opJUMPNEQ(address addr, word op1, word op2);
-/* Jumps to address addr if op1 > op2. */
-void opJUMPGT(address addr, word op1, word op2);
-/* Jumps to address addr if op1 >= op2. */
-void opJUMPGTE(address addr, word op1, word op2);
-/* Jumps to address addr if op1 < op2. */
-void opJUMPLT(address addr, word op1, word op2);
-/* Jumps to address addr if op1 <= op2. */
-void opJUMPLTE(address addr, word op1, word op2);
+void opJMPZ(address addr);
+/* Jumps to address addr if previous compare op1 == op2. */
+void opJMPEQ(address addr);
+/* Jumps to address addr if previous compare op1 != op2. */
+void opJMPNEQ(address addr);
+/* Jumps to address addr if previous compare op1 > op2. */
+void opJMPGT(address addr);
+/* Jumps to address addr if previous compare op1 >= op2. */
+void opJMPGTE(address addr);
+/* Jumps to address addr if previous compare op1 < op2. */
+void opJMPLT(address addr);
+/* Jumps to address addr if previous compare op1 <= op2. */
+void opJMPLTE(address addr);
 
 /* Gets the next instructions and packs it into opcode and operands. */
 Instruction fetchInstruction();

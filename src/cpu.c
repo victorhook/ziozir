@@ -173,8 +173,11 @@ void opSTI(word value, address to)
 /* --- Misc --- */
 void updateStatusRegister(word result)
 {
+    sReg.S = (result >> (BITS_PER_WORD - 1));
 
 }
+
+
 void opCMP(reg r1, reg r2)
 {
     updateStatusRegister(registers[r1] - registers[r2]);
@@ -230,53 +233,53 @@ void opRETI()
 
 /* Branching */
 
-void opJUMP(address addr)
+void opJMP(address addr)
 {
     setPc(addr);
 }
-void opJUMPZ(address addr)
+void opJMPZ(address addr)
 {
     if (sReg.Z == 0)
         setPc(addr);
     else
         incPc();
 }
-void opJUMPEQ(address addr, word op1, word op2)
+void opJMPEQ(address addr)
 {
     if (op1 == op2)
         setPc(addr);
     else
         incPc();
 }
-void opJUMPNEQ(address addr, word op1, word op2)
+void opJMPNEQ(address addr)
 {
     if (op1 != op2)
         setPc(addr);
     else
         incPc();
 }
-void opJUMPGT(address addr, word op1, word op2)
+void opJMPGT(address addr)
 {
     if (op1 > op2)
         setPc(addr);
     else
         incPc();
 }
-void opJUMPGTE(address addr, word op1, word op2)
+void opJMPGTE(address addr)
 {
     if (op1 >= op2)
         setPc(addr);
     else
         incPc();
 }
-void opJUMPLT(address addr, word op1, word op2)
+void opJMPLT(address addr)
 {
     if (op1 < op2)
         setPc(addr);
     else
         incPc();
 }
-void opJUMPLTE(address addr, word op1, word op2)
+void opJMPLTE(address addr)
 {
     if (op1 <= op2)
         setPc(addr);
@@ -368,32 +371,44 @@ int cpu_run()
                 break;
 
             /* Branching */
-            case OP_JUMP:
-                opJUMP(instr.args[0]);
+            case OP_JMP:
+                opJMP(instr.args[0]);
                 break;
-            case OP_JUMPZ:
-                opJUMPZ(instr.args[0]);
+            case OP_JMPZ:
+                opJMPZ(instr.args[0]);
                 break;
-            case OP_JUMPEQ:
-                opJUMPEQ(instr.args[0], instr.args[1]);
+            case OP_JMPEQ:
+                opJMPEQ(instr.args[0]);
                 break;
-            case OP_JUMPNEQ:
-                opJUMPNEQ(instr.args[0], instr.args[1]);
+            case OP_JMPNEQ:
+                opJMPNEQ(instr.args[0]);
                 break;
-            case OP_JUMPGT:
-                opJUMPGT(instr.args[0], instr.args[1]);
+            case OP_JMPGT:
+                opJMPGT(instr.args[0]);
                 break;
-            case OP_JUMPGTE:
-                opJUMPGTE(instr.args[0], instr.args[1]);
+            case OP_JMPGTE:
+                opJMPGTE(instr.args[0]);
                 break;
-            case OP_JUMPLT:
-                opJUMPLT(instr.args[0], instr.args[1]);
+            case OP_JMPLT:
+                opJMPLT(instr.args[0]);
                 break;
-            case OP_JUMPLTE:
-                opJUMPLTE(instr.args[0], instr.args[1]);
+            case OP_JMPLTE:
+                opJMPLTE(instr.args[0]);
                 break;
 
             /* MISC */
+            case OP_CMP:
+                opCMP(instr.args[0], instr.args[1]);
+                break;
+            case OP_CMPI:
+                opCMPI(instr.args[0], instr.args[1]);
+                break;
+            case OP_MOV:
+                opMOV(instr.args[0], instr.args[1]);
+                break;
+            case OP_MOVI:
+                opMOVI(instr.args[0], instr.args[1]);
+                break;
             case OP_EI:
                 opEI();
                 break;
