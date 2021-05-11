@@ -49,10 +49,10 @@ enum Register {
 #define DEFAULT_SP_INDEX 200
 
 /* -- Type definitinos -- */
-typedef uint16_t word;
-typedef uint16_t reg;
-typedef uint16_t address;
-typedef uint16_t memoryAddress;
+typedef uint32_t word;
+typedef uint32_t reg;
+typedef uint32_t address;
+typedef uint32_t memoryAddress;
 typedef struct {
     uint8_t Z;      // Z flag
     uint8_t OF;     // OverFlow flag
