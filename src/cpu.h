@@ -7,21 +7,27 @@ word readReg(reg reg);
 void writeReg(reg reg, word value);
 
 
+#define OPCODE_MASK 4227858432
+#define OPCODE_BITS 6
+#define REG_MASK 62914560
+#define REG_BITS 4
+
+
 /* --- Instructions --- */
 typedef enum {
     /* Arithmetic */
-    OP_ADD,     // ADD R1 R2 R3  -> R1 = R2 + R3
-    OP_ADDI,    // ADDI R1 R2 2  -> R1 = R2 + 2
-    OP_SUB,     // SUB R1 R2 R3  -> R1 = R2 - R3
-    OP_SUBI,    // SUBI R1 R2 2  -> R1 = R2 - 2
-    OP_MUL,     // MUL R1 R2 R3  -> R1 = R2 + R3
-    OP_MULI,    // MULI R1 R2 2  -> R1 = R2 * 2
-    OP_AND,     // AND R1 R2 R3  -> R1 = R2 & R3
-    OP_ANDI,    // ANDI R1 R2 2  -> R1 = R2 & 2
-    OP_OR,      // OR R1 R2 R3   -> R1 = R2 || R3
-    OP_ORI,     // ORI R1 R2 2   -> R1 = R2 || 2
-    OP_XOR,     // XOR R1 R2 R3  -> R1 = R2 ^ R3
-    OP_XORI,    // XORI R1 R2 2  -> R1 = R2 ^ 2
+    OP_ADD,     // ADD R1 R3     -> R1 = R1 + R3
+    OP_ADDI,    // ADDI R1 2     -> R1 = R1 + 2
+    OP_SUB,     // SUB R1 R3     -> R1 = R1 - R3
+    OP_SUBI,    // SUBI R1 2     -> R1 = R1 - 2
+    OP_MUL,     // MUL R1 R3     -> R1 = R1 + R3
+    OP_MULI,    // MULI R1 2     -> R1 = R1 * 2
+    OP_AND,     // AND R1 R3     -> R1 = R1 & R3
+    OP_ANDI,    // ANDI R1 2     -> R1 = R1 & 2
+    OP_OR,      // OR R1 R3      -> R1 = R1 || R3
+    OP_ORI,     // ORI R1 2      -> R1 = R1 || 2
+    OP_XOR,     // XOR R1 R3     -> R1 = R1 ^ R3
+    OP_XORI,    // XORI R1 2     -> R1 = R1 ^ 2
     OP_NOT,     // NOT R1 R2     -> R1 = ~R2
     OP_NOTI,    // NOTI R1 2     -> R1 = ~2
     /* Memory -> Register */
@@ -31,7 +37,8 @@ typedef enum {
     OP_ST,      // ST R1 Label   -> $[Label] = R1
     OP_STI,     // ST R1 2       -> $[2] = R1
     /* Misc */
-    OP_MOV,     // MOV R2 1
+    OP_MOV,     // MOV R2 R3
+    OP_MOVI,    // MOV R2 1
     OP_PUSH,    // PUSH
     OP_POP,     // POP
     OP_INC,     // INC R1
@@ -70,33 +77,33 @@ typedef struct {
 /* -- Arithmetic -- */
 
 /* ADD R1 R2 R3  -> R1 = R2 + R3 */
-void opADD(address to, reg r1, reg r2);
+void opADD(reg r1, reg r2);
 /* ADDI R1 R2 2  -> R1 = R2 + 2 */
-void opADDI(address to, reg r, word op);
+void opADDI(reg r, word constant);
 /* SUB R1 R2 R3  -> R1 = R2 - R3 */
-void opSUB(address to, reg r1, reg r2);
+void opSUB(reg r1, reg r2);
 /* SUBI R1 R2 2  -> R1 = R2 - 2 */
-void opSUBI(address to, reg r, word op);
+void opSUBI(reg r, word constant);
 /* MUL R1 R2 R3  -> R1 = R2 + R3 */
-void opMUL(address to, reg r1, reg r2);
+void opMUL(reg r1, reg r2);
 /* MULI R1 R2 2  -> R1 = R2 * 2 */
-void opMULI(address to, reg r, word op);
+void opMULI(reg r, word constant);
 /* AND R1 R2 R3  -> R1 = R2 & R3 */
-void opAND(address to, reg r1, reg r2);
+void opAND(reg r1, reg r2);
 /* ANDI R1 R2 2  -> R1 = R2 & 2 */
-void opANDI(address to, reg r, word op);
+void opANDI(reg r, word constant);
 /* OR R1 R2 R3   -> R1 = R2 || R3 */
-void opOR(address to, reg r1, reg r2);
+void opOR(reg r1, reg r2);
 /* ORI R1 R2 2   -> R1 = R2 || 2 */
-void opORI(address to, reg r, word op);
+void opORI(reg r, word constant);
 /* XOR R1 R2 R3  -> R1 = R2 ^ R3 */
-void opXOR(address to, reg r1, reg r2);
+void opXOR(reg r1, reg r2);
 /* XORI R1 R2 2  -> R1 = R2 ^ 2 */
-void opXORI(address to, reg r, word op);
+void opXORI(reg r, word constant);
 /* NOT R1 R2     -> R1 = ~R2 */
-void opNOT(address to, reg r);
+void opNOT(reg r1, reg r2);
 /* NOTI R1 2     -> R1 = ~2 */
-void opNOTI(address to, word op);
+void opNOTI(reg r, word op);
 /* Increments register r by 1. */
 void opINC(reg r);
 /* Decrements register r by 1. */
@@ -120,8 +127,10 @@ void opPOP(reg r);
 
 /* -- Misc -- */
 
+/* Copies register src into register r. */
+void opMOV(reg dst, reg src);
 /* Copies value value into register r. */
-void opMOV(reg r, word value);
+void opMOVI(reg r, word value);
 /* Enable interrupts. */
 void opEI();
 /* Disable Interrupts. */
@@ -162,6 +171,7 @@ void opJUMPLT(address addr, word op1, word op2);
 /* Jumps to address addr if op1 <= op2. */
 void opJUMPLTE(address addr, word op1, word op2);
 
+/* Gets the next instructions and packs it into opcode and operands. */
 Instruction fetchInstruction();
 
 /* --- IO --- */
