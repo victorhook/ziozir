@@ -31,6 +31,8 @@ typedef enum {
     OP_ST,      // ST R1 Label   -> $[Label] = R1
     OP_STI,     // ST R1 2       -> $[2] = R1
     /* Misc */
+    OP_CMP,     // CMP R1 R2
+    OP_CMPI,    // CMP R1 1
     OP_MOV,     // MOV R2 1
     OP_PUSH,    // PUSH
     OP_POP,     // POP
@@ -120,6 +122,10 @@ void opPOP(reg r);
 
 /* -- Misc -- */
 
+/* Compares register r1 with r2 and updates the status register. */
+void opCMP(reg r1, reg r2);
+/* Compares register r1 the operand value and updates the status register. */
+void opCMPI(reg r, word v);
 /* Copies value value into register r. */
 void opMOV(reg r, word value);
 /* Enable interrupts. */

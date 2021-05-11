@@ -165,6 +165,18 @@ void opSTI(word value, address to)
 }
 
 /* --- Misc --- */
+void updateStatusRegister(word result)
+{
+
+}
+void opCMP(reg r1, reg r2)
+{
+    updateStatusRegister(registers[r1] - registers[r2]);
+}
+void opCMPI(reg r, word v)
+{
+    updateStatusRegister(registers[r] - v);
+}
 void opMOV(reg r, word value)
 {
     registers[r] = value;
