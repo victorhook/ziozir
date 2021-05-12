@@ -16,13 +16,13 @@ class ArgParser:
         parser.add_argument('inputfile', nargs='*')
         parser.add_argument('-o', '--outputfile')
         parser.add_argument('--outhex')
-        parser.add_argument('--dumpinstr')
+        parser.add_argument('--dumpinstr', action='store_true')
 
         self.args = parser.parse_args()
 
     def args_ok(self) -> bool:
-        return (self.args.inputfile is not None 
-               and self.args.outputfile is not None)
+        return (self.args.inputfile is not None
+                and self.args.outputfile is not None)
 
 
 def assemble_pipeline(args: Namespace) -> None:
@@ -44,11 +44,11 @@ def assemble_pipeline(args: Namespace) -> None:
     # Build instructions.
     input = Assembler.build_instructions(input)
 
+    if args.dumpinstr:
+        print('\n'.join(str(instr) for instr in input))
+
     # Parse the instructions.
-    input = Assembler.parse_instructions(input)
-
-    print('\n'.join(str(a) for a in input))
-
+    #input = Assembler.parse_instructions(input)
 
 
 if __name__ == '__main__':
