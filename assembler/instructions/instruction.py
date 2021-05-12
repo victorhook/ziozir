@@ -20,29 +20,32 @@ class OpCode:
     LDI = 15
     ST = 16
     STI = 17
-    MOV = 18
-    PUSH = 19
-    POP = 20
-    INC = 21
-    DEC = 22
-    EI = 23
-    DI = 24
-    SET = 25
-    RES = 26
-    CALL = 27
-    RET = 28
-    RETI = 29
-    JUMP = 30
-    JUMPZ = 31
-    JUMPEQ = 32
-    JUMPNEQ = 33
-    JUMPGT = 34
-    JUMPGTE = 35
-    JUMPLT = 36
-    JUMPLTE = 37
-    NOP = 38
-    HALT = 39
-    UNKNOWN = 40
+    CMP = 18
+    CMPI = 19
+    MOV = 20
+    MOVI = 21
+    PUSH = 22
+    POP = 23
+    INC = 24
+    DEC = 25
+    EI = 26
+    DI = 27
+    SET = 28
+    RES = 29
+    CALL, = 30
+    RET, = 31
+    RETI, = 32
+    JMP = 33
+    JMPZ = 34
+    JMPEQ = 35
+    JMPNEQ = 36
+    JMPGT = 37
+    JMPGTE = 38
+    JMPLT = 39
+    JMPLTE = 40
+    NOP = 41
+    HALT = 42
+    UNKNOWN = 43
 
 
 OPCODES = {
@@ -64,50 +67,60 @@ OPCODES = {
     "LDI": 15,
     "ST": 16,
     "STI": 17,
-    "MOV": 18,
-    "PUSH": 19,
-    "POP": 20,
-    "INC": 21,
-    "DEC": 22,
-    "EI": 23,
-    "DI": 24,
-    "SET": 25,
-    "RES": 26,
-    "CALL,": 27,
-    "RET,": 28,
-    "RETI,": 29,
-    "JUMP": 30,
-    "JUMPZ": 31,
-    "JUMPEQ": 32,
-    "JUMPNEQ": 33,
-    "JUMPGT": 34,
-    "JUMPGTE": 35,
-    "JUMPLT": 36,
-    "JUMPLTE": 37,
-    "NOP": 38,
-    "HALT": 39,
-    "UNKNOWN": 40
+    "CMP": 18,
+    "CMPI": 19,
+    "MOV": 20,
+    "MOVI": 21,
+    "PUSH": 22,
+    "POP": 23,
+    "INC": 24,
+    "DEC": 25,
+    "EI": 26,
+    "DI": 27,
+    "SET": 28,
+    "RES": 29,
+    "CALL,": 30,
+    "RET,": 31,
+    "RETI,": 32,
+    "JMP": 33,
+    "JMPZ": 34,
+    "JMPEQ": 35,
+    "JMPNEQ": 36,
+    "JMPGT": 37,
+    "JMPGTE": 38,
+    "JMPLT": 39,
+    "JMPLTE": 40,
+    "NOP": 41,
+    "HALT": 42,
+    "UNKNOWN": 43,
 }
 
 
 class Instruction:
 
-    def __init__(self, line: Line):
-        self.line = line
-        self.tokens = line.tokens
+    def __init__(self, tokens: list):
+        self.tokens = tokens
         self.is_valid = True
 
     def __repr__(self):
         return ' '.join(str(tok) for tok in self.tokens)
-
-    def set_args(self, args: list) -> None:
-        pass
 
     def valid_args(self) -> bool:
         pass
 
     def expected() -> str:
         pass
+
+
+class Arithmetic(Instruction):
+
+    def __init__(self, tokens: list):
+        super().__init__()
+
+        
+
+
+
 
 
 class InvalidInstruction(Instruction):
