@@ -1,140 +1,68 @@
 from line import Line
 
-
-class OpCode:
-    ADD = 0
-    ADDI = 1
-    SUB = 2
-    SUBI = 3
-    MUL = 4
-    MULI = 5
-    AND = 6
-    ANDI = 7
-    OR = 8
-    ORI = 9
-    XOR = 10
-    XORI = 11
-    NOT = 12
-    NOTI = 13
-    LD = 14
-    LDI = 15
-    ST = 16
-    STI = 17
-    CMP = 18
-    CMPI = 19
-    MOV = 20
-    MOVI = 21
-    PUSH = 22
-    POP = 23
-    INC = 24
-    DEC = 25
-    EI = 26
-    DI = 27
-    SET = 28
-    RES = 29
-    CALL, = 30
-    RET, = 31
-    RETI, = 32
-    JMP = 33
-    JMPZ = 34
-    JMPEQ = 35
-    JMPNEQ = 36
-    JMPGT = 37
-    JMPGTE = 38
-    JMPLT = 39
-    JMPLTE = 40
-    NOP = 41
-    HALT = 42
-    UNKNOWN = 43
+from constants import OpCode, OPCODES
+import instruction_classes as instructions
 
 
-OPCODES = {
-    "ADD": 0,
-    "ADDI": 1,
-    "SUB": 2,
-    "SUBI": 3,
-    "MUL": 4,
-    "MULI": 5,
-    "AND": 6,
-    "ANDI": 7,
-    "OR": 8,
-    "ORI": 9,
-    "XOR": 10,
-    "XORI": 11,
-    "NOT": 12,
-    "NOTI": 13,
-    "LD": 14,
-    "LDI": 15,
-    "ST": 16,
-    "STI": 17,
-    "CMP": 18,
-    "CMPI": 19,
-    "MOV": 20,
-    "MOVI": 21,
-    "PUSH": 22,
-    "POP": 23,
-    "INC": 24,
-    "DEC": 25,
-    "EI": 26,
-    "DI": 27,
-    "SET": 28,
-    "RES": 29,
-    "CALL,": 30,
-    "RET,": 31,
+OPCODE_CLASS_TABLE = {
+    # Three operands
+    "ADD": instructions.InstrThreeOperands,
+    "ADDI": instructions.InstrThreeOperands,
+    "SUB": instructions.InstrThreeOperands,
+    "SUBI": instructions.InstrThreeOperands,
+    "MUL": instructions.InstrThreeOperands,
+    "MULI": instructions.InstrThreeOperands,
+    "AND": instructions.InstrThreeOperands,
+    "ANDI": instructions.InstrThreeOperands,
+    "OR": instructions.InstrThreeOperands,
+    "ORI": instructions.InstrThreeOperands,
+    "XOR":  instructions.InstrThreeOperands,
+    "XORI":  instructions.InstrThreeOperands,
+    # Two operands
+    "NOT": instructions.InstrTwoOperands,
+    "NOTI": instructions.InstrTwoOperands,
+    "LD": instructions.InstrTwoOperands,
+    "LDI": instructions.InstrTwoOperands,
+    "ST": instructions.InstrTwoOperands,
+    "STI": instructions.InstrTwoOperands,
+    "CMP": instructions.InstrTwoOperands,
+    "CMPI": instructions.InstrTwoOperands,
+    "MOV": instructions.InstrTwoOperands,
+    "MOVI": instructions.InstrTwoOperands,
+    # One operand
+    "PUSH": instructions.InstrTwoOperands,
+    "POP": instructions.InstrTwoOperands,
+    "INC": instructions.InstrTwoOperands,
+    "DEC": instructions.InstrTwoOperands,
+    "CALL,": instructions.InstrOneOperand,
+    "JMP": instructions.InstrOneOperand,
+    "JMPZ": instructions.InstrOneOperand,
+    "JMPEQ": instructions.InstrOneOperand,
+    "JMPNEQ": instructions.InstrOneOperand,
+    "JMPGT": instructions.InstrOneOperand,
+    "JMPGTE": instructions.InstrOneOperand,
+    "JMPLT": instructions.InstrOneOperand,
+    "JMPLTE": instructions.InstrOneOperand,
+    # No operands
+    "EI": instructions.InstrNoOperands,
+    "DI": instructions.InstrNoOperands,
+    "NOP": instructions.InstrNoOperands,
+    "HALT": instructions.InstrNoOperands,
+    "RET,": instructions.InstrNoOperands,
+    # Two opreand registers
+    "SET": instructions.InstrTwoOperandRegs,
+    "RES": instructions.InstrTwoOperandRegs,
+    # TODO
     "RETI,": 32,
-    "JMP": 33,
-    "JMPZ": 34,
-    "JMPEQ": 35,
-    "JMPNEQ": 36,
-    "JMPGT": 37,
-    "JMPGTE": 38,
-    "JMPLT": 39,
-    "JMPLTE": 40,
-    "NOP": 41,
-    "HALT": 42,
-    "UNKNOWN": 43,
 }
 
 
-class Instruction:
+class InvalidInstruction:
 
-    def __init__(self, tokens: list):
-        self.tokens = tokens
-        self.is_valid = True
-
-    def __repr__(self):
-        return ' '.join(str(tok) for tok in self.tokens)
-
-    def valid_args(self) -> bool:
-        pass
-
-    def expected() -> str:
-        pass
-
-
-class Arithmetic(Instruction):
-
-    def __init__(self, tokens: list):
-        super().__init__()
-
-        
-
-
-
-
-
-class InvalidInstruction(Instruction):
-
-    def __init__(self, msg, *args):
+    def __init__(self, msg, expected):
         self.is_valid = False
         self.msg = msg
-        self.tokens = []
-
-
-class ValidInstruction(Instruction):
-
-    def __init__(self, line: Line):
-        super().__init__(line)
+        self.expected = expected
 
 
 class InstructionFactory:
@@ -154,23 +82,31 @@ class InstructionFactory:
             return None
 
     @classmethod
-    def build_instruction(cls, line: Line) -> Instruction:
+    def _get_instruction(opcode: int,
+                         operands: list) -> instructions.Instruction:
+
+        pass
+
+    @classmethod
+    def build_instruction(cls, line: Line) -> instructions.Instruction:
         tokens = line.tokens
 
         # Get the opcode and ensure its known.
         opcode = cls._get_opcode(tokens[0])
-        if opcode is OpCode.UNKNOWN:
+        if opcode == OpCode.UNKNOWN:
             return InvalidInstruction('Unknown operation.')
+        elif opcode not in OPCODES:
+            return InvalidInstruction(f'Invalid operation {opcode}.')
 
-        # Create an instructions from the opcode.
-        instr = Instruction(opcode)
+        operands = line.tokens[1:] if len(line.tokens) > 1 else None
+        instr = cls._get_instruction(opcode, operands)
+
+        # Validate the instruction, to ensure operands are OK.
+        instr.validate()
 
         # Parse the arguments for the instruction.
-        args = cls._get_arguments(tokens)
-        if not instr.valid_args(args):
+        if not instr.is_valid:
             return InvalidInstruction(f'Invalid arguments for {opcode}: '
                                       f'{args}, expected: {instr.expected()}')
-
-        instr.set_args(args)
 
         return instr
