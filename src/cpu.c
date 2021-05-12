@@ -55,9 +55,68 @@ Instruction fetchInstruction(word instruction)
 {
     Instruction instr;
     memset((void*) &instr, 0, sizeof(instr));
-    instr.op = (instruction & OPCODE_MASK) >> (32 - (OPCODE_BITS));
-    instr.args[0] = (instruction & REG_MASK) >> (32 - (REG_BITS));
-    instr.args[1] = (instruction & (32 - OPCODE_BITS - REG_BITS));
+    instr.op = instruction >> 26;
+
+    switch (instr.op) {
+        case OP_ADD:
+        case OP_ADDI:
+        case OP_SUB:
+        case OP_SUBI:
+        case OP_MUL:
+        case OP_MULI:
+        case OP_AND:
+        case OP_ANDI:
+        case OP_OR:
+        case OP_ORI:
+        case OP_XOR:
+        case OP_XORI:
+        case OP_NOT:
+        case OP_NOTI:
+            instr.args[0] = (instruction >> 22) & 0x0f;     // op1
+            instr.args[1] = (instruction >> 18) & 0x0f;     // op2
+            instr.args[1] = instruction >> 18;              // op3
+            break;
+    
+        case OP_LD:
+        case OP_LDI:
+        case OP_ST:
+        case OP_STI:
+        case OP_CMP:
+        case OP_CMPI:
+        case OP_MOV:
+        case OP_MOVI:
+        case OP_SET:
+        case OP_RES:
+            instr.args[0] = (instruction >> 22) & 0x0f;     // reg
+            instr.args[1] = (instruction >> 18) & 0x0f;     // op/reg2
+            break;
+
+        case OP_PUSH:
+        case OP_POP:
+        case OP_INC:
+        case OP_DEC:
+        case OP_RET:
+            instr.args[0] = (instruction >> 22) & 0x0f;     // reg
+            break;
+
+        case OP_RETI:
+            break;
+
+        case OP_CALL:
+        case OP_JMP:
+        case OP_JMPZ:
+        case OP_JMPEQ:
+        case OP_JMPNEQ:
+        case OP_JMPGT:
+        case OP_JMPGTE:
+        case OP_JMPLT:
+        case OP_JMPLTE:
+            instr.args[0] = instruction & ADDR_MASK;       // address
+
+    default:
+        break;
+    }
+
     return instr;
 }
 

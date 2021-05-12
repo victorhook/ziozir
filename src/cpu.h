@@ -11,6 +11,7 @@ void writeReg(reg reg, word value);
 #define OPCODE_BITS 6
 #define REG_MASK 62914560
 #define REG_BITS 4
+#define ADDR_MASK 67108863
 
 
 /* --- Instructions --- */
