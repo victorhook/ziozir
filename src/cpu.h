@@ -16,26 +16,26 @@ void writeReg(reg reg, word value);
 /* --- Instructions --- */
 typedef enum {
     /* Arithmetic */
-    OP_ADD,     // ADD R1 R3     -> R1 = R1 + R3
-    OP_ADDI,    // ADDI R1 2     -> R1 = R1 + 2
-    OP_SUB,     // SUB R1 R3     -> R1 = R1 - R3
-    OP_SUBI,    // SUBI R1 2     -> R1 = R1 - 2
-    OP_MUL,     // MUL R1 R3     -> R1 = R1 + R3
-    OP_MULI,    // MULI R1 2     -> R1 = R1 * 2
-    OP_AND,     // AND R1 R3     -> R1 = R1 & R3
-    OP_ANDI,    // ANDI R1 2     -> R1 = R1 & 2
-    OP_OR,      // OR R1 R3      -> R1 = R1 || R3
-    OP_ORI,     // ORI R1 2      -> R1 = R1 || 2
-    OP_XOR,     // XOR R1 R3     -> R1 = R1 ^ R3
-    OP_XORI,    // XORI R1 2     -> R1 = R1 ^ 2
-    OP_NOT,     // NOT R1 R2     -> R1 = ~R2
-    OP_NOTI,    // NOTI R1 2     -> R1 = ~2
+    OP_ADD,     // ADD R1 R1 R3     -> R1 = R1 + R3
+    OP_ADDI,    // ADDI R1 R1 2     -> R1 = R1 + 2
+    OP_SUB,     // SUB R1 R1 R3     -> R1 = R1 - R3
+    OP_SUBI,    // SUBI R1 R1 2     -> R1 = R1 - 2
+    OP_MUL,     // MUL R1 R1 R3     -> R1 = R1 + R3
+    OP_MULI,    // MULI R1 R1 2     -> R1 = R1 * 2
+    OP_AND,     // AND R1 R1 R3     -> R1 = R1 & R3
+    OP_ANDI,    // ANDI R1 R1 2     -> R1 = R1 & 2
+    OP_OR,      // OR R1 R1 R3      -> R1 = R1 || R3
+    OP_ORI,     // ORI R1 R1 2      -> R1 = R1 || 2
+    OP_XOR,     // XOR R1 R1 R3     -> R1 = R1 ^ R3
+    OP_XORI,    // XORI R1 R1 2     -> R1 = R1 ^ 2
+    OP_NOT,     // NOT R1 R2        -> R1 = ~R2
+    OP_NOTI,    // NOTI R1 2        -> R1 = ~2
     /* Memory -> Register */
-    OP_LD,      // LD R1 Label   -> R1 = $[Label]
-    OP_LDI,     // LDI R1 2      -> R1 = $[2]
+    OP_LD,      // LD R1 Label      -> R1 = $[Label]
+    OP_LDI,     // LDI R1 2         -> R1 = $[2]
     /* Register -> Memory */
-    OP_ST,      // ST R1 Label   -> $[Label] = R1
-    OP_STI,     // ST R1 2       -> $[2] = R1
+    OP_ST,      // ST R1 Label      -> $[Label] = R1
+    OP_STI,     // ST R1 2          -> $[2] = R1
     /* Misc */
     OP_CMP,     // CMP R1 R2
     OP_CMPI,    // CMP R1 1
@@ -79,29 +79,29 @@ typedef struct {
 /* -- Arithmetic -- */
 
 /* ADD R1 R2 R3  -> R1 = R2 + R3 */
-void opADD(reg r1, reg r2);
+void opADD(reg r1, reg r2, reg r3);
 /* ADDI R1 R2 2  -> R1 = R2 + 2 */
-void opADDI(reg r, word constant);
+void opADDI(reg r1, reg r2, word constant);
 /* SUB R1 R2 R3  -> R1 = R2 - R3 */
-void opSUB(reg r1, reg r2);
+void opSUB(reg r1, reg r2, reg r3);
 /* SUBI R1 R2 2  -> R1 = R2 - 2 */
-void opSUBI(reg r, word constant);
+void opSUBI(reg r1, reg r2, word constant);
 /* MUL R1 R2 R3  -> R1 = R2 + R3 */
-void opMUL(reg r1, reg r2);
+void opMUL(reg r1, reg r2, reg r3);
 /* MULI R1 R2 2  -> R1 = R2 * 2 */
-void opMULI(reg r, word constant);
+void opMULI(reg r1, reg r2, word constant);
 /* AND R1 R2 R3  -> R1 = R2 & R3 */
-void opAND(reg r1, reg r2);
+void opAND(reg r1, reg r2, reg r3);
 /* ANDI R1 R2 2  -> R1 = R2 & 2 */
-void opANDI(reg r, word constant);
+void opANDI(reg r1, reg r2, word constant);
 /* OR R1 R2 R3   -> R1 = R2 || R3 */
-void opOR(reg r1, reg r2);
+void opOR(reg r1, reg r2, reg r3);
 /* ORI R1 R2 2   -> R1 = R2 || 2 */
-void opORI(reg r, word constant);
+void opORI(reg r1, reg r2, word constant);
 /* XOR R1 R2 R3  -> R1 = R2 ^ R3 */
-void opXOR(reg r1, reg r2);
+void opXOR(reg r1, reg r2, reg r3);
 /* XORI R1 R2 2  -> R1 = R2 ^ 2 */
-void opXORI(reg r, word constant);
+void opXORI(reg r1, reg r2, word constant);
 /* NOT R1 R2     -> R1 = ~R2 */
 void opNOT(reg r1, reg r2);
 /* NOTI R1 2     -> R1 = ~2 */

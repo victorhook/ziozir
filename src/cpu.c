@@ -80,37 +80,53 @@ static inline void arithmetic(reg r, word result)
     incPc();
 }
 /* Arithmetic */
-void opADD(reg r1, reg r2)
+void opADD(reg r1, reg r2, reg r3)
 {
-    arithmetic(r1, registers[r1] + registers[r2]);
+    arithmetic(r1, registers[r2] + registers[r3]);
 }
-void opADDI(reg r, word constant)
+void opADDI(reg r1, reg r2, word constant)
 {
-    arithmetic(r, registers[r] + constant);
+    arithmetic(r1, registers[r2] + constant);
 }
-void opSUB(reg r1, reg r2)
+void opSUB(reg r1, reg r2, reg r3)
 {
-    arithmetic(r1, registers[r1] - registers[r2]);
+    arithmetic(r1, registers[r2] - registers[r3]);
 }
-void opSUBI(reg r, word constant)
+void opSUBI(reg r1, reg r2, word constant)
 {
-    arithmetic(r, registers[r] - constant);
+    arithmetic(r1, registers[r2] - constant);
 }
-void opMUL(reg r1, reg r2)
+void opMUL(reg r1, reg r2, reg r3)
 {
-    arithmetic(r1, registers[r1] * registers[r2]);
+    arithmetic(r1, registers[r2] * registers[r3]);
 }
-void opMULI(reg r, word constant)
+void opMULI(reg r1, reg r2, word constant)
 {
-    arithmetic(r, registers[r] * constant);
+    arithmetic(r1, registers[r2] * constant);
 }
-void opAND(reg r1, reg r2)
+void opAND(reg r1, reg r2, reg r3)
 {
-    arithmetic(r1, registers[r1] & registers[r2]);
+    arithmetic(r1, registers[r2] & registers[r3]);
 }
-void opANDI(reg r, word constant)
+void opANDI(reg r1, reg r2, word constant)
 {
-    arithmetic(r, registers[r] & constant);
+    arithmetic(r1, registers[r2] & constant);
+}
+void opOR(reg r1, reg r2, reg r3)
+{
+    arithmetic(r1, registers[r2] || registers[r3]);
+}
+void opORI(reg r1, reg r2, word constant)
+{
+    arithmetic(r1, registers[r2] || constant);
+}
+void opXOR(reg r1, reg r2, reg r3)
+{
+    arithmetic(r1, registers[r2] ^ registers[r3]);
+}
+void opXORI(reg r1, reg r2, word constant)
+{
+    arithmetic(r1, registers[r2] ^ constant);
 }
 void opNOT(reg r1, reg r2)
 {
@@ -119,22 +135,6 @@ void opNOT(reg r1, reg r2)
 void opNOTI(reg r, word constant)
 {
     arithmetic(r, ~constant);
-}
-void opOR(reg r1, reg r2)
-{
-    arithmetic(r1, registers[r1] || registers[r2]);
-}
-void opORI(reg r, word constant)
-{
-    arithmetic(r, registers[r] || constant);
-}
-void opXOR(reg r1, reg r2)
-{
-    arithmetic(r1, registers[r1] ^ registers[r2]);
-}
-void opXORI(reg r, word constant)
-{
-    arithmetic(r, registers[r] ^ constant);
 }
 void opINC(reg r)
 {
@@ -171,20 +171,24 @@ void opSTI(word value, address to)
 }
 
 /* --- Misc --- */
-void updateStatusRegister(word result)
+void updateStatusRegister(word initial, word result)
 {
-    sReg.S = (result >> (BITS_PER_WORD - 1));
+    uint8_t initialSignBit = (initial >> (BITS_PER_WORD - 1));
+    uint8_t resultSignBit = (initial >> (BITS_PER_WORD - 1));
 
+    sReg.OF = initialSignBit != resultSignBit ? 1 : 0;
+    sReg.Z = result == 0 ? 1 : 0;
+    sReg.N = result < 0 ? 1 : 0;
 }
 
 
 void opCMP(reg r1, reg r2)
 {
-    updateStatusRegister(registers[r1] - registers[r2]);
+    updateStatusRegister(registers[r1], registers[r1] - registers[r2]);
 }
 void opCMPI(reg r, word v)
 {
-    updateStatusRegister(registers[r] - v);
+    updateStatusRegister(registers[r], registers[r] - v);
 }
 void opMOV(reg dst, reg src)
 {
@@ -246,42 +250,42 @@ void opJMPZ(address addr)
 }
 void opJMPEQ(address addr)
 {
-    if (op1 == op2)
+    if (sReg.Z == 0)
         setPc(addr);
     else
         incPc();
 }
 void opJMPNEQ(address addr)
 {
-    if (op1 != op2)
+    if (sReg.Z != 0)
         setPc(addr);
     else
         incPc();
 }
 void opJMPGT(address addr)
 {
-    if (op1 > op2)
+    if (!sReg.N && !sReg.Z)
         setPc(addr);
     else
         incPc();
 }
 void opJMPGTE(address addr)
 {
-    if (op1 >= op2)
+    if (!sReg.N)
         setPc(addr);
     else
         incPc();
 }
 void opJMPLT(address addr)
 {
-    if (op1 < op2)
+    if (sReg.N && !sReg.Z)
         setPc(addr);
     else
         incPc();
 }
 void opJMPLTE(address addr)
 {
-    if (op1 <= op2)
+    if (sReg.N)
         setPc(addr);
     else
         incPc();
@@ -310,46 +314,46 @@ int cpu_run()
         switch (instr.op) {
             /* Arithmetic */
             case OP_ADD:
-                opADD(instr.args[0], instr.args[1]);
+                opADD(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_ADDI:
-                opADDI(instr.args[0], instr.args[1]);
+                opADDI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_SUB:
-                opSUB(instr.args[0], instr.args[1]);
+                opSUB(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_SUBI:
-                opSUBI(instr.args[0], instr.args[1]);
+                opSUBI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_MUL:
-                opMUL(instr.args[0], instr.args[1]);
+                opMUL(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_MULI:
-                opMULI(instr.args[0], instr.args[1]);
+                opMULI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_AND:
-                opAND(instr.args[0], instr.args[1]);
+                opAND(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_ANDI:
-                opANDI(instr.args[0], instr.args[1]);
+                opANDI(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_OR:
+                opOR(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_ORI:
+                opORI(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_XOR:
+                opXOR(instr.args[0], instr.args[1], instr.args[2]);
+                break;
+            case OP_XORI:
+                opXORI(instr.args[0], instr.args[1], instr.args[2]);
                 break;
             case OP_NOT:
                 opNOT(instr.args[0], instr.args[1]);
                 break;
             case OP_NOTI:
                 opNOTI(instr.args[0], instr.args[1]);
-                break;
-            case OP_OR:
-                opOR(instr.args[0], instr.args[1]);
-                break;
-            case OP_ORI:
-                opORI(instr.args[0], instr.args[1]);
-                break;
-            case OP_XOR:
-                opXOR(instr.args[0], instr.args[1]);
-                break;
-            case OP_XORI:
-                opXORI(instr.args[0], instr.args[1]);
                 break;
             case OP_LD:
                 opLD(instr.args[0], instr.args[1]);
