@@ -11,21 +11,21 @@ The generic format for most instructions are as follows:
 
 Arithmetic and binary instructions are formatted as follows:
 
-|   0-5   | 6-9  | 10-31 |
-|---------|------|-------|
-|  opcode | op1  |  op2  |
+|   0-5   | 6-9  | 10-13 | 14-31 |
+|---------|------|-------|-------|
+|  opcode | op1  |  op2  |  op3  |
 
-where `op1` is the destination register and op2 can be either a register
-or a value, with *imidiate* operations.
+where `op1` is the destination register, `op2` the source register, and `op3`
+can either be a register or a value, with *imidiate* operations.
 Example:
 
-- `ADD R1 R2` -> R1 = R1 + R2
-- `ADDI R1 3` -> R1 = R1 + 3
+- `ADD R1 R2 R3` -> R1 = R2 + R3
+- `ADDI R1 R2 3` -> R1 = R2 + 3
 
 #### NOT
-|   0-5   | 6-9  | 10-31 |
-|---------|------|-------|
-|  opcode | op1  |  N/A  |
+|   0-5   | 6-9  | 10-13 | 14-31 |
+|---------|------|-------|-------|
+|  opcode | op1  |  op2  |  N/A  |
 
 #### LD
 |   0-5   | 6-9  | 10-31  |
