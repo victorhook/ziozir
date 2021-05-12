@@ -1,13 +1,13 @@
 class Instruction:
 
-    def __init__(self, name: str, opcode: int, operands: list = None):
-        self.name = name
+    def __init__(self, operation: str, opcode: int, operands: list = None):
+        self.operation = operation
         self.opcode = opcode
         self.operands = operands
         self.is_valid = True
 
     def __repr__(self):
-        return ' '.join(str(tok) for tok in self.tokens)
+        return self.operation + ': '+ ' '.join(str(op) for op in self.operands)
 
     def validate(self) -> bool:
         """ Validates the instruction and sets the is_valid attr thereafter.
@@ -23,7 +23,7 @@ class Instruction:
 # ------------------------------------------------- #
 
 
-class InstrThreeOperands:
+class InstrThreeOperands(Instruction):
     """ op1-4, op2-4, op3-18 """
 
     def __init__(self, *args, **kwargs):
@@ -33,7 +33,7 @@ class InstrThreeOperands:
         self.is_valid = True
 
 
-class InstrTwoOperands:
+class InstrTwoOperands(Instruction):
     """
         not, ld, st, mov, cmp
         op1-4, op2-22
@@ -46,7 +46,7 @@ class InstrTwoOperands:
         self.is_valid = True
 
 
-class InstrOneOperand:
+class InstrOneOperand(Instruction):
     """
         push, pop, inc, dev, call, jmp*
         op1-4
@@ -58,7 +58,7 @@ class InstrOneOperand:
         self.is_valid = True
 
 
-class InstrTwoOperandRegs:
+class InstrTwoOperandRegs(Instruction):
     """
         set, res
         op1-4, op2-4
@@ -69,7 +69,8 @@ class InstrTwoOperandRegs:
     def validate(self) -> None:
         self.is_valid = True
 
-class InstrNoOperands:
+
+class InstrNoOperands(Instruction):
     """
         ei, di, ret, nop, halt
     """

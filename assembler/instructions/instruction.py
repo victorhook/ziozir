@@ -1,7 +1,7 @@
 from line import Line
 
-from constants import OpCode, OPCODES
-import instruction_classes as instructions
+from .constants import OpCode, OPCODES
+from . import instruction_classes as instructions
 
 
 OPCODE_CLASS_TABLE = {
@@ -59,20 +59,17 @@ OPCODE_CLASS_TABLE = {
 
 class InvalidInstruction:
 
-    def __init__(self, msg, expected):
+    def __init__(self, msg: str, expected: str = None):
         self.is_valid = False
         self.msg = msg
         self.expected = expected
 
+    def __repr__(self):
+        return f'Invalid instruction: {self.msg}'
+
 
 class InstructionFactory:
 
-    @classmethod
-    def _get_opcode(cls, token: str) -> OpCode:
-        if token in OPCODES:
-            return OPCODES[token]
-        else:
-            return OpCode.UNKNOWN
 
     @classmethod
     def _get_arguments(cls, tokens: list) -> list:
@@ -82,31 +79,42 @@ class InstructionFactory:
             return None
 
     @classmethod
-    def _get_instruction(opcode: int,
+    def _get_instruction(cls, op_name: str, opcode_nbr: int,
                          operands: list) -> instructions.Instruction:
-
-        pass
+        """ Helper method to create the instantiate the appropiate instruction
+            given the instruction name.
+            Returns an instruction instance.
+        """
+        op_name = op_name.upper()
+        InstructionClass = OPCODE_CLASS_TABLE[op_name]
+        return InstructionClass(op_name, opcode_nbr, operands)
 
     @classmethod
     def build_instruction(cls, line: Line) -> instructions.Instruction:
         tokens = line.tokens
 
-        # Get the opcode and ensure its known.
-        opcode = cls._get_opcode(tokens[0])
-        if opcode == OpCode.UNKNOWN:
-            return InvalidInstruction('Unknown operation.')
-        elif opcode not in OPCODES:
-            return InvalidInstruction(f'Invalid operation {opcode}.')
+        # Get the operation. Using all uppercase.
+        operation = tokens[0].upper()
 
+        # Ensure that it's a known operation
+        if operation not in OPCODES:
+            return InvalidInstruction(f'Invalid operation {operation}.')
+
+        opcode_nbr = OPCODES[operation]
+        if opcode_nbr == OpCode.UNKNOWN:
+            return InvalidInstruction('Unknown operation.')
+
+        # Get the operands and create the instruction.
         operands = line.tokens[1:] if len(line.tokens) > 1 else None
-        instr = cls._get_instruction(opcode, operands)
+        instr = cls._get_instruction(operation, opcode_nbr, operands)
 
         # Validate the instruction, to ensure operands are OK.
         instr.validate()
 
         # Parse the arguments for the instruction.
         if not instr.is_valid:
-            return InvalidInstruction(f'Invalid arguments for {opcode}: '
-                                      f'{args}, expected: {instr.expected()}')
+            return InvalidInstruction(f'Invalid arguments for {operation}: '
+                                      f'{operands}, '
+                                      f'expected: {instr.expected()}')
 
         return instr
